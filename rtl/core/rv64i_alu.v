@@ -18,44 +18,48 @@ module rv64i_alu (
     wire [4:0] shamt5 = b[4:0];
 
     wire [31:0] a32 = a[31:0];
-    wire [31:0] b32 = b[31:0];
+
+    // Shared 64-bit Arithmetic & Comparator Datapath (eliminates redundant 32-bit and signed/unsigned structures)
+    wire [63:0] add_res  = a + b;
+    wire [63:0] sub_res  = a - b;
+    wire        sltu_res = (a < b);
+    wire        slt_res  = (a[63] ^ b[63]) ? a[63] : sltu_res;
 
     reg [31:0] res32;
-    wire signed [63:0] signed_a = a;
-    wire signed [63:0] signed_b = b;
+    wire signed [63:0] signed_a   = a;
     wire signed [31:0] signed_a32 = a[31:0];
 
     assign zero = (result == 64'd0);
 
     always @(*) begin
-        res32 = 32'd0;
+        res32  = 32'd0;
         result = 64'd0;
         if (word_op) begin
             // 32-bit Word Operations (sign-extend result from bit 31 to bit 63)
             case (alu_op)
-                `ALU_ADD: res32 = a32 + b32;
-                `ALU_SUB: res32 = a32 - b32;
+                `ALU_ADD: res32 = add_res[31:0];
+                `ALU_SUB: res32 = sub_res[31:0];
                 `ALU_SLL: res32 = a32 << shamt5;
                 `ALU_SRL: res32 = a32 >> shamt5;
                 `ALU_SRA: res32 = signed_a32 >>> shamt5;
-                default:  res32 = a32 + b32;
+                default:  res32 = add_res[31:0];
             endcase
             result = {{32{res32[31]}}, res32};
         end else begin
             // 64-bit Operations
             case (alu_op)
-                `ALU_ADD:    result = a + b;
-                `ALU_SUB:    result = a - b;
+                `ALU_ADD:    result = add_res;
+                `ALU_SUB:    result = sub_res;
                 `ALU_SLL:    result = a << shamt6;
-                `ALU_SLT:    result = (signed_a < signed_b) ? 64'd1 : 64'd0;
-                `ALU_SLTU:   result = (a < b) ? 64'd1 : 64'd0;
+                `ALU_SLT:    result = {63'd0, slt_res};
+                `ALU_SLTU:   result = {63'd0, sltu_res};
                 `ALU_XOR:    result = a ^ b;
                 `ALU_SRL:    result = a >> shamt6;
                 `ALU_SRA:    result = signed_a >>> shamt6;
                 `ALU_OR:     result = a | b;
                 `ALU_AND:    result = a & b;
                 `ALU_PASS_B: result = b; // Pass operand B directly (for LUI/JAL/JALR)
-                default:     result = a + b;
+                default:     result = add_res;
             endcase
         end
     end

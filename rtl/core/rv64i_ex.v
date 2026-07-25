@@ -85,25 +85,30 @@ module rv64i_ex (
         .zero    (alu_zero)
     );
 
-    // Branch Comparator
-    reg br_cond_met;
-    wire signed [63:0] s_fwd_rs1 = fwd_rs1;
-    wire signed [63:0] s_fwd_rs2 = fwd_rs2;
+    // Optimized Shared Branch Comparator (eliminates redundant signed/unsigned and >= comparator trees)
+    wire br_eq  = (fwd_rs1 == fwd_rs2);
+    wire br_ltu = (fwd_rs1 < fwd_rs2);
+    wire br_lt  = (fwd_rs1[63] ^ fwd_rs2[63]) ? fwd_rs1[63] : br_ltu;
 
+    reg br_cond_met;
     always @(*) begin
         case (ex_funct3)
-            `BR_BEQ:  br_cond_met = (fwd_rs1 == fwd_rs2);
-            `BR_BNE:  br_cond_met = (fwd_rs1 != fwd_rs2);
-            `BR_BLT:  br_cond_met = (s_fwd_rs1 < s_fwd_rs2);
-            `BR_BGE:  br_cond_met = (s_fwd_rs1 >= s_fwd_rs2);
-            `BR_BLTU: br_cond_met = (fwd_rs1 < fwd_rs2);
-            `BR_BGEU: br_cond_met = (fwd_rs1 >= fwd_rs2);
+            `BR_BEQ:  br_cond_met = br_eq;
+            `BR_BNE:  br_cond_met = ~br_eq;
+            `BR_BLT:  br_cond_met = br_lt;
+            `BR_BGE:  br_cond_met = ~br_lt;
+            `BR_BLTU: br_cond_met = br_ltu;
+            `BR_BGEU: br_cond_met = ~br_ltu;
             default:  br_cond_met = 1'b0;
         endcase
     end
 
+    // Decoupled Target Calculators: pc_target is off the forwarding critical path!
+    wire [63:0] pc_target   = ex_pc + ex_imm;              // For BEQ/BNE/BLT/BGE/JAL
+    wire [63:0] jalr_target = (fwd_rs1 + ex_imm) & ~64'h1; // For JALR (LSB cleared to 0 per RISC-V spec)
+
     assign branch_taken  = (ex_branch && br_cond_met) || ex_jump;
-    assign branch_target = (ex_jump && ex_alu_src) ? (fwd_rs1 + ex_imm) : (ex_pc + ex_imm); // JALR vs JAL/Branch
+    assign branch_target = (ex_jump && ex_alu_src) ? jalr_target : pc_target;
 
     // EX/MEM Synchronous Pipeline Register
     always @(posedge clk or posedge rst) begin

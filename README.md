@@ -11,7 +11,7 @@ Built with autonomous multi-agent teamwork on **Bazzite OS** (Immutable atomic L
 
 ---
 
-## 🌟 Executive Summary & Key Features
+## Executive Summary & Key Features
 
 * **Complete RV64I ISA Implementation**: Full support for 64-bit integer arithmetic, logical operations, shifts, conditional branches, jumps, immediate generation, and byte/halfword/word/doubleword memory access.
 * **5-Stage Pipelined Microarchitecture**: Instruction Fetch (`IF`), Instruction Decode (`ID`), Execute (`EX`), Memory Access (`MEM`), and Writeback (`WB`) cleanly separated by synchronous positive-edge D-flip-flop registers in [rv64i_cpu.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_cpu.v).
@@ -27,7 +27,7 @@ Built with autonomous multi-agent teamwork on **Bazzite OS** (Immutable atomic L
 
 ---
 
-## 🏛️ Microarchitecture & Pipeline ASCII Diagram
+## Microarchitecture & Pipeline ASCII Diagram
 
 ```text
 +---------------------------------------------------------------------------------------------------------------+
@@ -85,7 +85,7 @@ graph LR
 
 ---
 
-## 📂 Repository Directory Layout
+## Repository Directory Layout
 
 ```text
 /home/bazzite/Openlane_processor/
@@ -119,7 +119,7 @@ graph LR
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 Our project is fully automated via GNU Make. Ensure you have activated the local Python environment after initial setup:
 
@@ -143,7 +143,7 @@ make clean
 
 ---
 
-## 🧪 Test Suite Summary
+## Test Suite Summary
 
 The verification suite in [verif/](file:///home/bazzite/Openlane_processor/verif) guarantees 100% architectural compliance with the RISC-V unprivileged integer instruction set specification. When invoking `make sim-all`, our automated Python driver ([verif/scripts/test_driver.py](file:///home/bazzite/Openlane_processor/verif/scripts/test_driver.py)) compiles the CPU core against [tb_rv64i_cpu.v](file:///home/bazzite/Openlane_processor/verif/tb_rv64i_cpu.v) and sequentially executes directed machine-code hex programs:
 
@@ -159,7 +159,7 @@ Each simulation executes 2000 cycles, dumping waveform logs (`sim_build/tb_rv64i
 
 ---
 
-## 📖 Continuous Living Documentation Suite
+## Continuous Living Documentation Suite
 
 For deep-dive architectural specifications, interface definitions, step-by-step guides, and physical design reports, explore our continuous documentation suite:
 

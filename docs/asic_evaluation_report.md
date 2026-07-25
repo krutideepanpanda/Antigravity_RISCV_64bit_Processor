@@ -16,17 +16,17 @@ The architecture implements a full 5-stage integer pipeline (Instruction Fetch, 
 
 | Metric | Target Specification | Achieved Signoff Value | Verification Status |
 | :--- | :--- | :--- | :--- |
-| **PDK Target** | SkyWater 130nm (`sky130A`) | `sky130A` (`sky130_fd_sc_hd` high-density library) | 🟢 Verified |
-| **Top-Level Design** | `asic_top` | `asic_top` (10 ports, 300 I/O bits) | 🟢 Verified |
-| **Clock Frequency ($F_{max}$)** | $\ge 100\text{ MHz}$ ($10.0\text{ ns}$ period) | **100 MHz** ($10.0\text{ ns}$ period target) | 🟢 Verified |
-| **Setup Timing Slack (WNS)** | $\ge 0.00\text{ ns}$ (No setup violations) | **+1.25 ns** (Estimated post-synth WNS) | 🟢 Verified |
-| **Total Standard Cells** | $15,000 - 25,000\text{ cells}$ | **18,348 cells** (3,262 DFFs / 15,086 logic) | 🟢 Verified |
-| **Sequential DFF Count** | Minimal state overhead | **3,262 DFFs** (17.8% of total cells) | 🟢 Verified |
-| **Core Area Utilization** | $40\% - 60\%$ density | **48.5%** ($760\,\mu\text{m} \times 760\,\mu\text{m}$ core area) | 🟢 Verified |
-| **Total Die Area** | $\le 1.0\text{ mm}^2$ | **0.640 mm²** ($800\,\mu\text{m} \times 800\,\mu\text{m}$ die area) | 🟢 Verified |
-| **Design Rule Check (DRC)** | 0 Violations | **0 Violations** (Magic DRC signoff flow) | 🟢 Verified |
-| **Layout vs. Schematic (LVS)** | 0 Violations | **0 Violations** (Netgen LVS netlist comparison)| 🟢 Verified |
-| **Estimated Total Power** | $\le 50\text{ mW}$ at 100 MHz | **~33.0 mW** ($0.33\text{ mW/MHz}$ efficiency) | 🟢 Verified |
+| **PDK Target** | SkyWater 130nm (`sky130A`) | `sky130A` (`sky130_fd_sc_hd` high-density library) | [Verified] |
+| **Top-Level Design** | `asic_top` | `asic_top` (10 ports, 300 I/O bits) | [Verified] |
+| **Clock Frequency ($F_{max}$)** | $\ge 100\text{ MHz}$ ($10.0\text{ ns}$ period) | **100 MHz** ($10.0\text{ ns}$ period target) | [Verified] |
+| **Setup Timing Slack (WNS)** | $\ge 0.00\text{ ns}$ (No setup violations) | **+1.25 ns** (Estimated post-synth WNS) | [Verified] |
+| **Total Standard Cells** | $15,000 - 25,000\text{ cells}$ | **18,348 cells** (3,262 DFFs / 15,086 logic) | [Verified] |
+| **Sequential DFF Count** | Minimal state overhead | **3,262 DFFs** (17.8% of total cells) | [Verified] |
+| **Core Area Utilization** | $40\% - 60\%$ density | **48.5%** ($760\,\mu\text{m} \times 760\,\mu\text{m}$ core area) | [Verified] |
+| **Total Die Area** | $\le 1.0\text{ mm}^2$ | **0.640 mm²** ($800\,\mu\text{m} \times 800\,\mu\text{m}$ die area) | [Verified] |
+| **Design Rule Check (DRC)** | 0 Violations | **0 Violations** (Magic DRC signoff flow) | [Verified] |
+| **Layout vs. Schematic (LVS)** | 0 Violations | **0 Violations** (Netgen LVS netlist comparison)| [Verified] |
+| **Estimated Total Power** | $\le 50\text{ mW}$ at 100 MHz | **~33.0 mW** ($0.33\text{ mW/MHz}$ efficiency) | [Verified] |
 
 ---
 
