@@ -1,0 +1,135 @@
+// ============================================================================
+// Stage 3: Execute (EX)
+// ALU, Forwarding Muxes, Branch Target Adder, Branch Comparator, EX/MEM Reg
+// ============================================================================
+`default_nettype none
+`include "rv64i_types.vh"
+
+module rv64i_ex (
+    input  wire        clk,
+    input  wire        rst,
+    input  wire [63:0] ex_pc,
+    input  wire [63:0] ex_pc_plus4,
+    input  wire [63:0] ex_rs1_data,
+    input  wire [63:0] ex_rs2_data,
+    input  wire [63:0] ex_imm,
+    input  wire [4:0]  ex_rs1_addr,
+    input  wire [4:0]  ex_rs2_addr,
+    input  wire [4:0]  ex_rd_addr,
+    input  wire [2:0]  ex_funct3,
+    input  wire        ex_reg_write,
+    input  wire        ex_mem_to_reg,
+    input  wire        ex_mem_write,
+    input  wire        ex_mem_read,
+    input  wire [3:0]  ex_alu_op,
+    input  wire        ex_alu_src,
+    input  wire        ex_branch,
+    input  wire        ex_jump,
+    input  wire        ex_word_op,
+    input  wire [2:0]  ex_mem_width,
+    // Forwarding inputs
+    input  wire [1:0]  fwd_a_sel,
+    input  wire [1:0]  fwd_b_sel,
+    input  wire [63:0] mem_fwd_data,   // From MEM stage (mem_alu_result)
+    input  wire [63:0] wb_fwd_data,    // From WB stage (wb_rd_data)
+    // Outputs to IF stage (branch resolution)
+    output wire        branch_taken,
+    output wire [63:0] branch_target,
+    // Outputs to MEM stage (via EX/MEM register)
+    output reg  [63:0] mem_alu_result,
+    output reg  [63:0] mem_wdata,
+    output reg  [4:0]  mem_rd_addr,
+    output reg         mem_reg_write,
+    output reg         mem_mem_to_reg,
+    output reg         mem_mem_write,
+    output reg         mem_mem_read,
+    output reg  [2:0]  mem_mem_width,
+    output reg  [63:0] mem_pc_plus4,
+    output reg         mem_jump
+);
+
+    // Forwarding Multiplexers for Operand A and Operand B
+    reg [63:0] fwd_rs1;
+    reg [63:0] fwd_rs2;
+
+    always @(*) begin
+        case (fwd_a_sel)
+            `FWD_EX:   fwd_rs1 = mem_fwd_data;
+            `FWD_MEM:  fwd_rs1 = wb_fwd_data;
+            default:   fwd_rs1 = ex_rs1_data;
+        endcase
+    end
+
+    always @(*) begin
+        case (fwd_b_sel)
+            `FWD_EX:   fwd_rs2 = mem_fwd_data;
+            `FWD_MEM:  fwd_rs2 = wb_fwd_data;
+            default:   fwd_rs2 = ex_rs2_data;
+        endcase
+    end
+
+    // ALU Operands
+    wire [63:0] alu_in_a = fwd_rs1;
+    wire [63:0] alu_in_b = ex_alu_src ? ex_imm : fwd_rs2;
+
+    // Instantiate 64-bit ALU
+    wire [63:0] alu_res;
+    wire        alu_zero;
+
+    rv64i_alu u_alu (
+        .a       (alu_in_a),
+        .b       (alu_in_b),
+        .alu_op  (ex_alu_op),
+        .word_op (ex_word_op),
+        .result  (alu_res),
+        .zero    (alu_zero)
+    );
+
+    // Branch Comparator
+    reg br_cond_met;
+    wire signed [63:0] s_fwd_rs1 = fwd_rs1;
+    wire signed [63:0] s_fwd_rs2 = fwd_rs2;
+
+    always @(*) begin
+        case (ex_funct3)
+            `BR_BEQ:  br_cond_met = (fwd_rs1 == fwd_rs2);
+            `BR_BNE:  br_cond_met = (fwd_rs1 != fwd_rs2);
+            `BR_BLT:  br_cond_met = (s_fwd_rs1 < s_fwd_rs2);
+            `BR_BGE:  br_cond_met = (s_fwd_rs1 >= s_fwd_rs2);
+            `BR_BLTU: br_cond_met = (fwd_rs1 < fwd_rs2);
+            `BR_BGEU: br_cond_met = (fwd_rs1 >= fwd_rs2);
+            default:  br_cond_met = 1'b0;
+        endcase
+    end
+
+    assign branch_taken  = (ex_branch && br_cond_met) || ex_jump;
+    assign branch_target = (ex_jump && ex_alu_src) ? (fwd_rs1 + ex_imm) : (ex_pc + ex_imm); // JALR vs JAL/Branch
+
+    // EX/MEM Synchronous Pipeline Register
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            mem_alu_result <= 64'h0;
+            mem_wdata      <= 64'h0;
+            mem_rd_addr    <= 5'h0;
+            mem_reg_write  <= 1'b0;
+            mem_mem_to_reg <= 1'b0;
+            mem_mem_write  <= 1'b0;
+            mem_mem_read   <= 1'b0;
+            mem_mem_width  <= 3'h0;
+            mem_pc_plus4   <= 64'h0;
+            mem_jump       <= 1'b0;
+        end else begin
+            mem_alu_result <= alu_res;
+            mem_wdata      <= fwd_rs2; // Store data uses forwarded rs2
+            mem_rd_addr    <= ex_rd_addr;
+            mem_reg_write  <= ex_reg_write;
+            mem_mem_to_reg <= ex_mem_to_reg;
+            mem_mem_write  <= ex_mem_write;
+            mem_mem_read   <= ex_mem_read;
+            mem_mem_width  <= ex_mem_width;
+            mem_pc_plus4   <= ex_pc_plus4;
+            mem_jump       <= ex_jump;
+        end
+    end
+
+endmodule

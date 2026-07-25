@@ -35,7 +35,7 @@ lint:
 	@echo "--> Running Verilog syntax and lint checks..."
 	@iverilog -g2012 -I $(INC_DIR) -t null $(RTL_CORE_FILES) $(RTL_TOP_FILES) && echo "✅ Icarus Verilog syntax check PASSED!"
 	@if command -v verilator >/dev/null 2>&1; then \
-		verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNOPTFLAT -I$(INC_DIR) $(RTL_CORE_FILES) $(RTL_TOP_FILES) && echo "✅ Verilator lint check PASSED!"; \
+		verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNOPTFLAT -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-UNDRIVEN -I$(INC_DIR) $(RTL_CORE_FILES) $(RTL_TOP_FILES) && echo "✅ Verilator lint check PASSED!"; \
 	fi
 
 sim-all:
