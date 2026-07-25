@@ -93,7 +93,27 @@ module rv64i_id (
 
     // ID/EX Synchronous Pipeline Register
     always @(posedge clk or posedge rst) begin
-        if (rst || flush) begin
+        if (rst) begin
+            ex_pc         <= 64'h0;
+            ex_pc_plus4   <= 64'h0;
+            ex_rs1_data   <= 64'h0;
+            ex_rs2_data   <= 64'h0;
+            ex_imm        <= 64'h0;
+            ex_rs1_addr   <= 5'h0;
+            ex_rs2_addr   <= 5'h0;
+            ex_rd_addr    <= 5'h0;
+            ex_funct3     <= 3'h0;
+            ex_reg_write  <= 1'b0;
+            ex_mem_to_reg <= 1'b0;
+            ex_mem_write  <= 1'b0;
+            ex_mem_read   <= 1'b0;
+            ex_alu_op     <= 4'h0;
+            ex_alu_src    <= 1'b0;
+            ex_branch     <= 1'b0;
+            ex_jump       <= 1'b0;
+            ex_word_op    <= 1'b0;
+            ex_mem_width  <= 3'h0;
+        end else if (flush) begin
             ex_pc         <= 64'h0;
             ex_pc_plus4   <= 64'h0;
             ex_rs1_data   <= 64'h0;

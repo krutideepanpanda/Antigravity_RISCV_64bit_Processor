@@ -10,6 +10,14 @@ import subprocess
 import glob
 
 def find_executable(cmd):
+    # Check workspace bin directory first
+    workspace_cmd = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "bin", cmd)
+    if os.path.exists(workspace_cmd):
+        if cmd == "iverilog":
+            lib_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "lib", "ivl")
+            return [workspace_cmd, "-B", lib_dir]
+        return [workspace_cmd]
+
     # Check if standard command works
     try:
         res = subprocess.run([cmd, "-V"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)

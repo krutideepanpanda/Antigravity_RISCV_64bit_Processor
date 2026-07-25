@@ -1,6 +1,12 @@
-# Virtual Environment
+# Virtual Environment & Local Toolchains
 .venv/
 venv/
+bin/
+include/
+lib/
+share/
+share
+scratch/
 *.pyc
 __pycache__/
 

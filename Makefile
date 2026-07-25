@@ -3,7 +3,7 @@
 # ==============================================================================
 
 SHELL := /bin/bash
-PATH  := /var/home/linuxbrew/.linuxbrew/bin:$(PATH)
+PATH  := $(CURDIR)/bin:/var/home/linuxbrew/.linuxbrew/bin:$(PATH)
 VENV  := .venv/bin/activate
 
 # RTL & Verification files
@@ -41,9 +41,9 @@ lint:
 sim-all:
 	@echo "--> Executing RV64I Verification & Compliance Suite..."
 	@if [ -d ".venv" ]; then \
-		source $(VENV) && python verif/scripts/test_driver.py; \
+		source $(VENV) && /usr/bin/python3 verif/scripts/test_driver.py; \
 	else \
-		python verif/scripts/test_driver.py; \
+		/usr/bin/python3 verif/scripts/test_driver.py; \
 	fi
 
 openlane:

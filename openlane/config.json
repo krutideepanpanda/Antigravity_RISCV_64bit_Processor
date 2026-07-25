@@ -1,0 +1,31 @@
+{
+  "PDK": "sky130A",
+  "DESIGN_NAME": "asic_top",
+  "VERILOG_FILES": [
+    "dir::../rtl/include/rv64i_types.vh",
+    "dir::../rtl/core/rv64i_alu.v",
+    "dir::../rtl/core/rv64i_control.v",
+    "dir::../rtl/core/rv64i_cpu.v",
+    "dir::../rtl/core/rv64i_ex.v",
+    "dir::../rtl/core/rv64i_forwarding.v",
+    "dir::../rtl/core/rv64i_hazard.v",
+    "dir::../rtl/core/rv64i_id.v",
+    "dir::../rtl/core/rv64i_if.v",
+    "dir::../rtl/core/rv64i_imm_gen.v",
+    "dir::../rtl/core/rv64i_mem.v",
+    "dir::../rtl/core/rv64i_regfile.v",
+    "dir::../rtl/core/rv64i_wb.v",
+    "dir::../rtl/asic_top.v"
+  ],
+  "VERILOG_INCLUDE_DIRS": [
+    "dir::../rtl/include"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10.0,
+  "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+  "DIE_AREA": [0, 0, 800, 800],
+  "CORE_AREA": [20, 20, 780, 780],
+  "RUN_KLAYOUT": false,
+  "RUN_KLAYOUT_DRC": false,
+  "RUN_KLAYOUT_XOR": false
+}
