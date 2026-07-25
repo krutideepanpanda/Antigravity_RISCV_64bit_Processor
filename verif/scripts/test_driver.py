@@ -103,7 +103,7 @@ def run_test_suite():
     if failed > 0:
         sys.exit(2)
     else:
-        print("🎉 ALL ISA COMPLIANCE & VERIFICATION TESTS PASSED SUCCESSFULLY!")
+        print("[SUCCESS] ALL ISA COMPLIANCE & VERIFICATION TESTS PASSED SUCCESSFULLY!")
         sys.exit(0)
 
 if __name__ == "__main__":

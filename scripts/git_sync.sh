@@ -69,5 +69,5 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
 fi
 
 echo "=========================================================="
-echo "🎉 Continuous GitHub Synchronization Completed Successfully!"
+echo "[SUCCESS] Continuous GitHub Synchronization Completed Successfully!"
 echo "=========================================================="
