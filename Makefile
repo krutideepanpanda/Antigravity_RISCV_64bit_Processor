@@ -1,0 +1,61 @@
+# ==============================================================================
+# RISC-V 64-bit (RV64I) ASIC Development & OpenLane Tape-Out Makefile
+# ==============================================================================
+
+SHELL := /bin/bash
+PATH  := /var/home/linuxbrew/.linuxbrew/bin:$(PATH)
+VENV  := .venv/bin/activate
+
+# RTL & Verification files
+RTL_CORE_FILES := $(wildcard rtl/core/*.v)
+RTL_TOP_FILES  := $(wildcard rtl/*.v)
+TB_FILES       := $(wildcard verif/*.v)
+INC_DIR        := rtl/include
+
+.PHONY: all help setup lint sim-all openlane clean
+
+all: help
+
+help:
+	@echo "===================================================================="
+	@echo "  64-bit RISC-V (RV64I) ASIC & OpenLane Build System"
+	@echo "===================================================================="
+	@echo "  make setup      : Initialize toolchain and Python virtual environment"
+	@echo "  make lint       : Run syntax checks and linting on Verilog RTL"
+	@echo "  make sim-all    : Compile and execute the full RV64I test suite"
+	@echo "  make openlane   : Execute OpenLane ASIC synthesis and GDSII generation"
+	@echo "  make clean      : Remove build artifacts and simulation logs"
+	@echo "===================================================================="
+
+setup:
+	@chmod +x scripts/setup_env.sh
+	@./scripts/setup_env.sh
+
+lint:
+	@echo "--> Running Verilog syntax and lint checks..."
+	@iverilog -g2012 -I $(INC_DIR) -t null $(RTL_CORE_FILES) $(RTL_TOP_FILES) && echo "✅ Icarus Verilog syntax check PASSED!"
+	@if command -v verilator >/dev/null 2>&1; then \
+		verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNOPTFLAT -I$(INC_DIR) $(RTL_CORE_FILES) $(RTL_TOP_FILES) && echo "✅ Verilator lint check PASSED!"; \
+	fi
+
+sim-all:
+	@echo "--> Executing RV64I Verification & Compliance Suite..."
+	@if [ -d ".venv" ]; then \
+		source $(VENV) && python verif/scripts/test_driver.py; \
+	else \
+		python verif/scripts/test_driver.py; \
+	fi
+
+openlane:
+	@echo "--> Starting OpenLane ASIC Synthesis & Layout Flow..."
+	@chmod +x scripts/run_openlane.sh
+	@if [ -d ".venv" ]; then \
+		source $(VENV) && ./scripts/run_openlane.sh; \
+	else \
+		./scripts/run_openlane.sh; \
+	fi
+
+clean:
+	@echo "--> Cleaning build and simulation files..."
+	@rm -rf *.vcd *.out sim_build csrc *.log *.jou *.rpt *.stat
+	@echo "Clean complete."

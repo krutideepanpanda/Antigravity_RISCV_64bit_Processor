@@ -1,0 +1,31 @@
+# Virtual Environment
+.venv/
+venv/
+*.pyc
+__pycache__/
+
+# Simulation & Verification dumps
+*.vcd
+*.out
+*.hex.tmp
+sim_build/
+csrc/
+*.daidir/
+*.flg
+*.trc
+*.log
+*.jou
+*.history
+
+# OpenLane / EDA Temporary files
+openlane/runs/
+!openlane/runs/*/results/final/
+*.rpt
+*.stat
+
+# OS / Editor
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
