@@ -8,6 +8,8 @@ __pycache__/
 *.vcd
 *.out
 *.hex.tmp
+sim_tb
+verif/sim_tb
 sim_build/
 csrc/
 *.daidir/

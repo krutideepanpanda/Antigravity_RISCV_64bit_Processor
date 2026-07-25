@@ -22,8 +22,10 @@ module rv64i_regfile (
 
     // Asynchronous Read with x0 hardwired to 0
     // Optional internal forwarding if reading rd_addr in the same cycle we write
-    assign rs1_data = (rs1_addr == 5'd0) ? 64'h0 : registers[rs1_addr];
-    assign rs2_data = (rs2_addr == 5'd0) ? 64'h0 : registers[rs2_addr];
+    assign rs1_data = (rs1_addr == 5'd0) ? 64'h0 :
+                      ((we && (rd_addr == rs1_addr)) ? rd_data : registers[rs1_addr]);
+    assign rs2_data = (rs2_addr == 5'd0) ? 64'h0 :
+                      ((we && (rd_addr == rs2_addr)) ? rd_data : registers[rs2_addr]);
 
     // Synchronous Write
     always @(posedge clk or posedge rst) begin
