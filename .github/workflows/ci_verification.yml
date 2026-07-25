@@ -1,0 +1,38 @@
+name: RV64I Core Verification & CI
+
+on:
+  push:
+    branches: [ main, "feature/*" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  lint-and-simulate:
+    name: RTL Lint & ISA Compliance Simulation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Toolchain Dependencies (Icarus Verilog & Verilator)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog verilator python3 python3-pip make
+
+      - name: Verify Verilog Syntax & Run Verilator Lint
+        run: |
+          make lint
+
+      - name: Execute 100% Directed ISA Compliance Test Suite
+        run: |
+          python3 verif/scripts/test_driver.py
+
+      - name: Upload Waveform Artifacts on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-waveforms
+          path: verif/sim_build/*.vcd
+          retention-days: 7
