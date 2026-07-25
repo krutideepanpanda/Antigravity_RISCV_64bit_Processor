@@ -1,0 +1,74 @@
+CAPI=2:
+name: "openlane:ip:rv64i_core:1.0.0"
+description: "64-bit RISC-V CPU (RV64I) Core with AXI4-Lite Bridge"
+
+filesets:
+  rtl:
+    files:
+      - ../rtl/include/rv64i_types.vh: {is_include_file: true}
+      - ../rtl/core/rv64i_alu.v
+      - ../rtl/core/rv64i_control.v
+      - ../rtl/core/rv64i_forwarding.v
+      - ../rtl/core/rv64i_hazard.v
+      - ../rtl/core/rv64i_imm_gen.v
+      - ../rtl/core/rv64i_muldiv.v
+      - ../rtl/core/rv64i_regfile.v
+      - ../rtl/core/rv64i_if.v
+      - ../rtl/core/rv64i_id.v
+      - ../rtl/core/rv64i_ex.v
+      - ../rtl/core/rv64i_mem.v
+      - ../rtl/core/rv64i_wb.v
+      - ../rtl/core/rv64i_cpu.v
+      - ../rtl/ip_block/rv64i_axi4lite_bridge.v
+      - ../rtl/asic_top.v
+    file_type: verilogSource
+
+  tb:
+    files:
+      - ../verif/tb_rv64i_cpu.v
+    file_type: verilogSource
+
+targets:
+  default:
+    filesets:
+      - rtl
+    parameters:
+      - ADDR_WIDTH
+      - DATA_WIDTH
+    toplevel: asic_top
+
+  sim:
+    default_tool: iverilog
+    filesets:
+      - rtl
+      - tb
+    toplevel: tb_rv64i_cpu
+
+  lint:
+    default_tool: verilator
+    filesets:
+      - rtl
+    toplevel: asic_top
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "-Wno-MULTITOP"
+          - "-Wno-DECLFILENAME"
+          - "-Wno-UNOPTFLAT"
+          - "-Wno-UNUSEDSIGNAL"
+          - "-Wno-UNUSEDPARAM"
+          - "-Wno-UNDRIVEN"
+
+parameters:
+  ADDR_WIDTH:
+    datatype: int
+    default: 64
+    description: Address bus width
+    paramtype: vlogparam
+  DATA_WIDTH:
+    datatype: int
+    default: 64
+    description: Data bus width
+    paramtype: vlogparam

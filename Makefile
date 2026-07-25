@@ -8,7 +8,7 @@ VENV  := .venv/bin/activate
 
 # RTL & Verification files
 RTL_CORE_FILES := $(wildcard rtl/core/*.v)
-RTL_TOP_FILES  := $(wildcard rtl/*.v)
+RTL_TOP_FILES  := $(wildcard rtl/*.v) $(wildcard rtl/ip_block/*.v)
 TB_FILES       := $(wildcard verif/*.v)
 INC_DIR        := rtl/include
 
