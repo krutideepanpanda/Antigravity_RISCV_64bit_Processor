@@ -18,6 +18,17 @@
 `define OPCODE_JAL     7'b1101111 // J-type jump: JAL
 `define OPCODE_SYSTEM  7'b1110011 // System: ECALL, EBREAK
 
+// M-Extension (RV64M) Funct7 and Funct3 Opcodes
+`define FUNCT7_M    7'b0000001
+`define M_MUL       3'b000
+`define M_MULH      3'b001
+`define M_MULHSU    3'b010
+`define M_MULHU     3'b011
+`define M_DIV       3'b100
+`define M_DIVU      3'b101
+`define M_REM       3'b110
+`define M_REMU      3'b111
+
 // ALU Control Opcodes (alu_ctrl)
 `define ALU_ADD   4'b0000
 `define ALU_SUB   4'b1000
