@@ -58,12 +58,12 @@ module rv64i_l1_cache #(
     reg [TAG_BITS-1:0]    tag_way0   [0:NUM_SETS-1];
     reg                   valid_way0 [0:NUM_SETS-1];
     reg                   dirty_way0 [0:NUM_SETS-1];
-    reg [LINE_SIZE*8-1:0] data_way0  [0:NUM_SETS-1];
+    (* ram_style = "block" *) reg [LINE_SIZE*8-1:0] data_way0  [0:NUM_SETS-1];
 
     reg [TAG_BITS-1:0]    tag_way1   [0:NUM_SETS-1];
     reg                   valid_way1 [0:NUM_SETS-1];
     reg                   dirty_way1 [0:NUM_SETS-1];
-    reg [LINE_SIZE*8-1:0] data_way1  [0:NUM_SETS-1];
+    (* ram_style = "block" *) reg [LINE_SIZE*8-1:0] data_way1  [0:NUM_SETS-1];
 
     reg                   lru_array  [0:NUM_SETS-1]; // 0 -> way 0 LRU, 1 -> way 1 LRU
 

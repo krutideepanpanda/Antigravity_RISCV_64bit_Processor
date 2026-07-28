@@ -2,13 +2,13 @@
 
 ## 1. Architectural Overview
 
-The `rv64i_cpu` core is a fully synthesizable, 5-stage pipelined 64-bit RISC-V processor implementing the RV64I base integer instruction set architecture. To facilitate seamless integration into standard System-on-Chip (SoC) interconnects, the package provides a standalone bridge module, [rv64i_axi4lite_bridge](file:///home/bazzite/Openlane_processor/rtl/ip_block/rv64i_axi4lite_bridge.v), which converts the processor's internal instruction fetch and data read/write buses into a fully compliant AMBA AXI4-Lite master interface.
+The `rv64i_cpu` core is a fully synthesizable, 5-stage pipelined 64-bit RISC-V processor implementing the RV64I base integer instruction set architecture. To facilitate seamless integration into standard System-on-Chip (SoC) interconnects, the package provides a standalone bridge module, [rv64i_axi4lite_bridge](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/ip_block/rv64i_axi4lite_bridge.v), which converts the processor's internal instruction fetch and data read/write buses into a fully compliant AMBA AXI4-Lite master interface.
 
 The top-level wrappers and packaging descriptors included in this IP block release are:
-* [rv64i_axi4lite_bridge.v](file:///home/bazzite/Openlane_processor/rtl/ip_block/rv64i_axi4lite_bridge.v): AXI4-Lite Master/Slave interface bridge with internal arbitration and pipeline stalling logic.
-* [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v): Registered ASIC top-level wrapper optimized for static timing analysis (STA) and Wishbone/SRAM interfacing.
-* [rv64i_cpu_ip.xml](file:///home/bazzite/Openlane_processor/ip/rv64i_cpu_ip.xml): IEEE 1685-2014 IP-XACT component descriptor for automated EDA tool flow ingestion.
-* [rv64i_core.core](file:///home/bazzite/Openlane_processor/ip/rv64i_core.core): FuseSoC package descriptor (CAPI=2 format) for automated dependency tracking and multi-target builds.
+* [rv64i_axi4lite_bridge.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/ip_block/rv64i_axi4lite_bridge.v): AXI4-Lite Master/Slave interface bridge with internal arbitration and pipeline stalling logic.
+* [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v): Registered ASIC top-level wrapper optimized for static timing analysis (STA) and Wishbone/SRAM interfacing.
+* [rv64i_cpu_ip.xml](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_cpu_ip.xml): IEEE 1685-2014 IP-XACT component descriptor for automated EDA tool flow ingestion.
+* [rv64i_core.core](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_core.core): FuseSoC package descriptor (CAPI=2 format) for automated dependency tracking and multi-target builds.
 
 ---
 
@@ -68,7 +68,7 @@ The top-level wrappers and packaging descriptors included in this IP block relea
 
 ## 3. Memory Map and Address Space Allocation
 
-The processor core operates over a unified 64-bit physical address space (`0x0000000000000000` to `0xFFFFFFFFFFFFFFFF`). The [rv64i_axi4lite_bridge](file:///home/bazzite/Openlane_processor/rtl/ip_block/rv64i_axi4lite_bridge.v) implements fixed priority arbitration:
+The processor core operates over a unified 64-bit physical address space (`0x0000000000000000` to `0xFFFFFFFFFFFFFFFF`). The [rv64i_axi4lite_bridge](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/ip_block/rv64i_axi4lite_bridge.v) implements fixed priority arbitration:
 
 1. **Data Memory Writes (`dmem_we`)**: Highest priority. Ensures store buffers are committed to memory without introducing artificial write-after-write hazards.
 2. **Data Memory Reads (`dmem_re`)**: Second priority. Resolves load operations required by instructions in the execution stage.
@@ -101,11 +101,11 @@ The processor core operates over a unified 64-bit physical address space (`0x000
 ## 5. Synthesis and Physical Design Integration
 
 ### 5.1 Automated Toolchain Ingestion via FuseSoC
-The IP block is packaged with a FuseSoC core descriptor located at [rv64i_core.core](file:///home/bazzite/Openlane_processor/ip/rv64i_core.core). To integrate the core into an external FPGA or ASIC build tree:
+The IP block is packaged with a FuseSoC core descriptor located at [rv64i_core.core](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_core.core). To integrate the core into an external FPGA or ASIC build tree:
 
 ```bash
 # Add the local IP repository to FuseSoC
-fusesoc library add rv64i_core /home/bazzite/Openlane_processor/ip/
+fusesoc library add rv64i_core /home/bazzite/Antigravity_RISCV_64bit_Processor/ip/
 
 # Run linting across all packaged Verilog RTL files
 fusesoc run --target=lint openlane:ip:rv64i_core:1.0.0
@@ -115,7 +115,7 @@ fusesoc run --target=sim openlane:ip:rv64i_core:1.0.0
 ```
 
 ### 5.2 EDA Tool Import via IP-XACT
-For commercial EDA environments (such as Vivado IP Integrator, Synopsys CoreBuilder, or ARM Socrates), import the IEEE 1685-2014 descriptor located at [rv64i_cpu_ip.xml](file:///home/bazzite/Openlane_processor/ip/rv64i_cpu_ip.xml). The XML descriptor automatically maps logical AXI4-Lite interfaces to the underlying Verilog ports and attaches all required source files from `rtl/core/` and `rtl/ip_block/`.
+For commercial EDA environments (such as Vivado IP Integrator, Synopsys CoreBuilder, or ARM Socrates), import the IEEE 1685-2014 descriptor located at [rv64i_cpu_ip.xml](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_cpu_ip.xml). The XML descriptor automatically maps logical AXI4-Lite interfaces to the underlying Verilog ports and attaches all required source files from `rtl/core/` and `rtl/ip_block/`.
 
 ### 5.3 OpenLane ASIC Synthesis Workflow
-When targeting ASIC tape-out via OpenLane, point the flow configuration to [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v) as the top-level module. Ensure that the include directory `rtl/include` is explicitly added to `VERILOG_INCLUDE_DIRS` in `config.json` so that [rv64i_types.vh](file:///home/bazzite/Openlane_processor/rtl/include/rv64i_types.vh) is resolved during Verific/Yosys elaboration.
+When targeting ASIC tape-out via OpenLane, point the flow configuration to [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v) as the top-level module. Ensure that the include directory `rtl/include` is explicitly added to `VERILOG_INCLUDE_DIRS` in `config.json` so that [rv64i_types.vh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh) is resolved during Verific/Yosys elaboration.

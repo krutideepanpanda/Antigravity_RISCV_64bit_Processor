@@ -86,7 +86,7 @@ def run_benchmark():
 
     # Compile RTL + Testbench
     print("--> Compiling Verilog RTL and testbench with Icarus Verilog...")
-    rtl_files = glob.glob("rtl/core/*.v") + ["rtl/asic_top.v", "verif/tb_rv64i_cpu.v"]
+    rtl_files = glob.glob("rtl/core/*.v") + glob.glob("rtl/ip_block/*.v") + ["rtl/asic_top.v", "verif/tb_rv64i_cpu.v"]
     compile_cmd = iverilog_cmd + ["-g2012", "-I", "rtl/include", "-o", "verif/sim_tb", "-s", "tb_rv64i_cpu"] + rtl_files
     
     res = subprocess.run(compile_cmd, capture_output=True, text=True)

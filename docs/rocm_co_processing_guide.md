@@ -18,7 +18,7 @@ graph TD
 
 ## 2. Architectural Queue Language (AQL) Packet Structure
 
-The core mechanism for job submission in the Heterogeneous System Architecture is the AQL Kernel Dispatch Packet. Standardized in [rocm_dispatch_pkt.vh](file:///home/bazzite/Openlane_processor/rtl/rocm/rocm_dispatch_pkt.vh), the packet is an aligned 64-byte (512-bit) structure that defines all necessary parameters for kernel execution without requiring OS kernel intervention.
+The core mechanism for job submission in the Heterogeneous System Architecture is the AQL Kernel Dispatch Packet. Standardized in [rocm_dispatch_pkt.vh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/rocm/rocm_dispatch_pkt.vh), the packet is an aligned 64-byte (512-bit) structure that defines all necessary parameters for kernel execution without requiring OS kernel intervention.
 
 ### AQL Kernel Dispatch Packet Layout
 
@@ -37,7 +37,7 @@ The core mechanism for job submission in the Heterogeneous System Architecture i
 
 ## 3. Hardware Co-Processor Accelerator Implementation
 
-The synthesizable co-processor module implemented in [rv64i_rocm_accelerator.v](file:///home/bazzite/Openlane_processor/rtl/rocm/rv64i_rocm_accelerator.v) acts as a high-performance memory-mapped peripheral operating on the processor memory bus.
+The synthesizable co-processor module implemented in [rv64i_rocm_accelerator.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/rocm/rv64i_rocm_accelerator.v) acts as a high-performance memory-mapped peripheral operating on the processor memory bus.
 
 ### Physical Memory Mapping
 
@@ -60,7 +60,7 @@ The accelerator operates using a three-state deterministic Finite State Machine 
 
 ## 4. Native ROCm / HIP C Runtime Driver Architecture
 
-To enable application developers to harness the co-processor without complex driver stacks, we implemented a freestanding C runtime library in [rocm_riscv_runtime.h](file:///home/bazzite/Openlane_processor/software/rocm_runtime/rocm_riscv_runtime.h) and [rocm_riscv_runtime.c](file:///home/bazzite/Openlane_processor/software/rocm_runtime/rocm_riscv_runtime.c). This library is designed for bare-metal embedded execution and simulation environments.
+To enable application developers to harness the co-processor without complex driver stacks, we implemented a freestanding C runtime library in [rocm_riscv_runtime.h](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/software/rocm_runtime/rocm_riscv_runtime.h) and [rocm_riscv_runtime.c](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/software/rocm_runtime/rocm_riscv_runtime.c). This library is designed for bare-metal embedded execution and simulation environments.
 
 ### Supported Heterogeneous APIs
 
@@ -70,7 +70,7 @@ To enable application developers to harness the co-processor without complex dri
 
 ## 5. Hardware Verification and Simulation Results
 
-Verification of the complete co-processing subsystem was performed using a standalone testbench instantiated in [tb_rocm_dispatch.v](file:///home/bazzite/Openlane_processor/verif/tests/rocm/tb_rocm_dispatch.v).
+Verification of the complete co-processing subsystem was performed using a standalone testbench instantiated in [tb_rocm_dispatch.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/tests/rocm/tb_rocm_dispatch.v).
 
 ### Verification Sequence
 

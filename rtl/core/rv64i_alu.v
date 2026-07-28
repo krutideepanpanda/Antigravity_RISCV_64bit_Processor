@@ -58,6 +58,9 @@ module rv64i_alu (
                 `ALU_SRA:    result = signed_a >>> shamt6;
                 `ALU_OR:     result = a | b;
                 `ALU_AND:    result = a & b;
+                `ALU_XGFX_PACK:  result = {b[31:0], a[31:0]};
+                `ALU_XGFX_BLEND: result = (a & b) + (((a ^ b) & 64'hFEFE_FEFE_FEFE_FEFE) >> 1);
+                `ALU_XGFX_CLIP:  result = ((a[31:0] >= b[31:0]) && (a[31:0] <= b[63:32])) ? 64'd1 : 64'd0;
                 `ALU_PASS_B: result = b; // Pass operand B directly (for LUI/JAL/JALR)
                 default:     result = add_res;
             endcase

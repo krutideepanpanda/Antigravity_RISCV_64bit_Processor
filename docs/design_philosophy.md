@@ -1,6 +1,6 @@
 # RISC-V 64-bit (RV64I) Design Philosophy & Methodology
 
-This document outlines the architectural trade-offs, design methodology, and synthesis principles guiding the implementation of our 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Openlane_processor/rtl/include/rv64i_types.vh)) and its physical implementation in the open-source **SkyWater 130nm PDK** (`sky130A`).
+This document outlines the architectural trade-offs, design methodology, and synthesis principles guiding the implementation of our 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh)) and its physical implementation in the open-source **SkyWater 130nm PDK** (`sky130A`).
 
 ---
 
@@ -14,7 +14,7 @@ When designing a processor for ASIC synthesis, the choice of microarchitecture d
 | **Multi-Cycle** | Moderate | Low | FSM-based (high routing) | None needed |
 | **5-Stage Pipelined** | **High (short stage paths)** | **Balanced** | **Modular & Clean** | **Full Forwarding + Stalls** |
 
-We selected the **5-stage pipelined microarchitecture** (Fetch, Decode, Execute, Memory, Writeback) implemented in [rv64i_cpu.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_cpu.v) because it achieves an optimal balance between high clock frequency and modest standard-cell area in 130nm CMOS technology. By breaking instruction execution into 5 clean stages separated by synchronous D-flip-flop registers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`), we limit the critical path in any single cycle to a 64-bit ALU operation or a single memory access.
+We selected the **5-stage pipelined microarchitecture** (Fetch, Decode, Execute, Memory, Writeback) implemented in [rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_cpu.v) because it achieves an optimal balance between high clock frequency and modest standard-cell area in 130nm CMOS technology. By breaking instruction execution into 5 clean stages separated by synchronous D-flip-flop registers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`), we limit the critical path in any single cycle to a 64-bit ALU operation or a single memory access.
 
 ```mermaid
 graph LR
@@ -51,11 +51,11 @@ graph LR
 
 ## 2. Synthesizable Verilog & RTL Best Practices
 
-To ensure 100% bug-free synthesis in open-source EDA tools (Yosys, OpenLane, Verilator), we enforce strict RTL coding standards across all modules in [rtl/core/](file:///home/bazzite/Openlane_processor/rtl/core):
+To ensure 100% bug-free synthesis in open-source EDA tools (Yosys, OpenLane, Verilator), we enforce strict RTL coding standards across all modules in [rtl/core/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core):
 1. **Synchronous Design**: All sequential state elements use positive-edge triggered D-flip-flops (`always @(posedge clk or posedge rst)`). Asynchronous active-high reset is uniformly applied across all registers.
 2. **Zero Latch Rule**: Combinational logic blocks (`always @(*)`) must assign defaults to every output signal before conditional evaluation (`if-else` or `case`) to prevent unintended transparent latches during Yosys synthesis.
-3. **No Non-Synthesizable Constructs**: Core modules strictly avoid `#` delays, `initial` blocks for state initialization, and non-synthesizable file I/O. Memory contents for verification are loaded exclusively in simulation testbenches ([tb_rv64i_cpu.v](file:///home/bazzite/Openlane_processor/verif/tb_rv64i_cpu.v)).
-4. **Clean Register File Hardwiring**: Register `x0` in [rv64i_regfile.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_regfile.v) is hardwired to `64'b0` both in read multiplexing and by ignoring writes to address `5'b00000`, preventing logic waste during standard cell synthesis.
+3. **No Non-Synthesizable Constructs**: Core modules strictly avoid `#` delays, `initial` blocks for state initialization, and non-synthesizable file I/O. Memory contents for verification are loaded exclusively in simulation testbenches ([tb_rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/tb_rv64i_cpu.v)).
+4. **Clean Register File Hardwiring**: Register `x0` in [rv64i_regfile.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_regfile.v) is hardwired to `64'b0` both in read multiplexing and by ignoring writes to address `5'b00000`, preventing logic waste during standard cell synthesis.
 
 ---
 
@@ -65,8 +65,8 @@ Pipelining introduces data and control hazards that must be resolved without cor
 
 ### A. Write-Through Register Forwarding & Data Bypassing
 Instead of stalling the pipeline for every data dependency, our design implements a two-tier forwarding strategy:
-* **Combinational Data Forwarding ([rv64i_forwarding.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_forwarding.v))**: Monitors destination register addresses in the `MEM` (`ex_mem_rd`) and `WB` (`mem_wb_rd`) stages. If an upcoming ALU operand in `EX` matches an active writeback register ($R_{d} \neq 0$), the forwarding unit dynamically routes the ALU result or memory read data directly into the Execute stage multiplexers.
-* **Write-Through Register File ([rv64i_regfile.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_regfile.v))**: When an instruction in `ID` reads a register that is simultaneously being written by an instruction in `WB` (in the same clock cycle), internal write-through multiplexing bypasses the written data directly to the read outputs ($Q = W_{data}$ when $R_{addr} == W_{addr}$). This eliminates 1-cycle latency penalties on dependent consecutive instructions.
+* **Combinational Data Forwarding ([rv64i_forwarding.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_forwarding.v))**: Monitors destination register addresses in the `MEM` (`ex_mem_rd`) and `WB` (`mem_wb_rd`) stages. If an upcoming ALU operand in `EX` matches an active writeback register ($R_{d} \neq 0$), the forwarding unit dynamically routes the ALU result or memory read data directly into the Execute stage multiplexers.
+* **Write-Through Register File ([rv64i_regfile.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_regfile.v))**: When an instruction in `ID` reads a register that is simultaneously being written by an instruction in `WB` (in the same clock cycle), internal write-through multiplexing bypasses the written data directly to the read outputs ($Q = W_{data}$ when $R_{addr} == W_{addr}$). This eliminates 1-cycle latency penalties on dependent consecutive instructions.
 
 ```mermaid
 graph TD
@@ -83,8 +83,8 @@ graph TD
 ```
 
 ### B. Load-Use Data Hazard Stalls
-When an instruction depends on the result of a load instruction (`ld`, `lw`, etc.) immediately preceding it, data cannot be forwarded in time because memory read data is only available at the end of the `MEM` stage. Our hazard detection module ([rv64i_hazard.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_hazard.v)) detects load-use conditions in `ID/EX` and asserts a 1-cycle stall by:
-* Freezing the Program Counter (`PC` write enable = 0 in [rv64i_if.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_if.v)).
+When an instruction depends on the result of a load instruction (`ld`, `lw`, etc.) immediately preceding it, data cannot be forwarded in time because memory read data is only available at the end of the `MEM` stage. Our hazard detection module ([rv64i_hazard.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_hazard.v)) detects load-use conditions in `ID/EX` and asserts a 1-cycle stall by:
+* Freezing the Program Counter (`PC` write enable = 0 in [rv64i_if.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_if.v)).
 * Freezing the `IF/ID` pipeline register.
 * Injecting a synchronous NOP (`32'h00000013`, `addi x0, x0, 0`) bubble into the `ID/EX` pipeline register.
 
@@ -96,7 +96,7 @@ Bubble (NOP):                  [--- BUBBLE ---] -> EX ---> MEM ---> WB
 ```
 
 ### C. Control Hazard Flushes (Branch & Jump)
-When a conditional branch (`beq`, `bne`, etc.) is taken or an unconditional jump (`jal`, `jalr`) executes, instructions already fetched into the `IF` and `ID` stages are incorrect. Upon branch decision in the Execute stage ([rv64i_ex.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_ex.v)), the hazard unit asserts flush signals, clearing both `IF/ID` and `ID/EX` pipeline registers to NOPs on the next clock edge.
+When a conditional branch (`beq`, `bne`, etc.) is taken or an unconditional jump (`jal`, `jalr`) executes, instructions already fetched into the `IF` and `ID` stages are incorrect. Upon branch decision in the Execute stage ([rv64i_ex.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_ex.v)), the hazard unit asserts flush signals, clearing both `IF/ID` and `ID/EX` pipeline registers to NOPs on the next clock edge.
 
 ---
 
@@ -104,8 +104,8 @@ When a conditional branch (`beq`, `bne`, etc.) is taken or an unconditional jump
 
 For our physical tape-out targeting the **SkyWater 130nm Open-Source PDK** (`sky130A`), we implement a rigorous physical design flow managed by OpenLane 2 and LibreLane:
 
-### A. Registered ASIC Boundary ([asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v))
-To prevent I/O timing anomalies and hold-time violations during OpenLane routing, we wrap the processor core with a synchronous Wishbone/SRAM-compatible bus interface in [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v). All top-level instruction and data memory ports are registered, isolating internal core paths from external pad frame delays.
+### A. Registered ASIC Boundary ([asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v))
+To prevent I/O timing anomalies and hold-time violations during OpenLane routing, we wrap the processor core with a synchronous Wishbone/SRAM-compatible bus interface in [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v). All top-level instruction and data memory ports are registered, isolating internal core paths from external pad frame delays.
 
 ### B. Standard Cell Synthesis & Technology Mapping
 * **Library Selection**: We utilize the SkyWater High-Density (`sky130_fd_sc_hd`) standard cell library, offering an optimal compromise between low leakage power and high speed switching for 64-bit arithmetic units.

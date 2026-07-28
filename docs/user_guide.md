@@ -24,7 +24,7 @@ make lint
 ```
 
 **What this step does:**
-* Invokes `iverilog` syntax checking across all RTL files in [rtl/core/](file:///home/bazzite/Openlane_processor/rtl/core) and [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v).
+* Invokes `iverilog` syntax checking across all RTL files in [rtl/core/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core) and [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v).
 * Executes `verilator --lint-only -Wall` static analysis rules to catch width mismatches, unassigned outputs, and implicit wire declarations.
 
 ---
@@ -38,9 +38,9 @@ make sim-all
 ```
 
 **Step-by-Step Execution Flow:**
-1. **Driver Invocation**: `Makefile` calls our automated Python test runner, [test_driver.py](file:///home/bazzite/Openlane_processor/verif/scripts/test_driver.py).
-2. **Test Discovery**: The driver scans [verif/tests/hex/](file:///home/bazzite/Openlane_processor/verif/tests/hex) for machine-code hex test suites (`test_alu_ops.hex`, `test_branches.hex`, `test_forwarding_hazards.hex`, `test_memory.hex`, `test_word_ops.hex`).
-3. **Compilation & Execution**: For each test, `test_driver.py` compiles the CPU core along with the master verification testbench [tb_rv64i_cpu.v](file:///home/bazzite/Openlane_processor/verif/tb_rv64i_cpu.v) using `iverilog -o sim_build/sim.vvp`. It then executes the simulation with `vvp`.
+1. **Driver Invocation**: `Makefile` calls our automated Python test runner, [test_driver.py](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/scripts/test_driver.py).
+2. **Test Discovery**: The driver scans [verif/tests/hex/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/tests/hex) for machine-code hex test suites (`test_alu_ops.hex`, `test_branches.hex`, `test_forwarding_hazards.hex`, `test_memory.hex`, `test_word_ops.hex`).
+3. **Compilation & Execution**: For each test, `test_driver.py` compiles the CPU core along with the master verification testbench [tb_rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/tb_rv64i_cpu.v) using `iverilog -o sim_build/sim.vvp`. It then executes the simulation with `vvp`.
 4. **Architectural State Verification**: The CPU executes 2000 clock cycles and dumps final general-purpose register states (`x1`-`x31`) into verification log files. The driver compares these register states against expected gold reference signatures, reporting a green `PASSED` status for 100% ISA compliance.
 
 ### Inspecting Waveforms
@@ -60,8 +60,8 @@ make openlane
 ```
 
 **Step-by-Step Execution Flow:**
-1. **Script Execution**: Triggers [run_openlane.sh](file:///home/bazzite/Openlane_processor/scripts/run_openlane.sh), which configures the Python toolchain wrapper and invokes OpenLane 2 using the configuration in [openlane/config.json](file:///home/bazzite/Openlane_processor/openlane/config.json) and pad floorplan in [openlane/pin_order.cfg](file:///home/bazzite/Openlane_processor/openlane/pin_order.cfg).
-2. **Synthesis (Yosys)**: Maps synthesizable RTL in [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v) and [rtl/core/](file:///home/bazzite/Openlane_processor/rtl/core) to SkyWater 130nm High-Density (`sky130_fd_sc_hd`) standard cells.
+1. **Script Execution**: Triggers [run_openlane.sh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/scripts/run_openlane.sh), which configures the Python toolchain wrapper and invokes OpenLane 2 using the configuration in [openlane/config.json](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/openlane/config.json) and pad floorplan in [openlane/pin_order.cfg](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/openlane/pin_order.cfg).
+2. **Synthesis (Yosys)**: Maps synthesizable RTL in [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v) and [rtl/core/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core) to SkyWater 130nm High-Density (`sky130_fd_sc_hd`) standard cells.
 3. **Floorplanning (OpenROAD / OpenDP)**: Establishes an $800\,\mu\text{m} \times 800\,\mu\text{m}$ die boundary, places peripheral I/O pins, and inserts power distribution network (PDN) metal stripes.
 4. **Placement (RePlAce / OpenDP)**: Performs global and detailed placement of standard cells within the core boundary.
 5. **Clock Tree Synthesis (TritonCTS)**: Synthesizes a low-skew clock distribution network driving all sequential D-flip-flops.
@@ -72,13 +72,13 @@ make openlane
 
 ## 5. Using Custom Agent Skills (`.skills/`)
 
-Our repository bundles custom domain skills in [.skills/](file:///home/bazzite/Openlane_processor/.skills) that enable developers and AI agents to execute specific EDA workflows autonomously:
+Our repository bundles custom domain skills in [.skills/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/.skills) that enable developers and AI agents to execute specific EDA workflows autonomously:
 
 | Skill Name | Directory Path | Purpose & Capabilities |
 | :--- | :--- | :--- |
-| `riscv-simulate-iverilog` | [.skills/riscv-simulate-iverilog/](file:///home/bazzite/Openlane_processor/.skills/riscv-simulate-iverilog) | Compiles and simulates individual RISC-V assembly test programs using Icarus Verilog (`iverilog`) and `vvp`. Analyzes waveform output (`tb_rv64i_cpu.vcd`) to debug instruction timing, forwarding paths, and memory alignment. |
-| `riscv-isa-compliance` | [.skills/riscv-isa-compliance/](file:///home/bazzite/Openlane_processor/.skills/riscv-isa-compliance) | Orchestrates the complete automated ISA compliance test suite via [test_driver.py](file:///home/bazzite/Openlane_processor/verif/scripts/test_driver.py). Validates integer arithmetic, branch decisions, load/store hazards, and register file write-through behavior against architectural reference states. |
-| `openlane-asic-flow` | [.skills/openlane-asic-flow/](file:///home/bazzite/Openlane_processor/.skills/openlane-asic-flow) | Automates execution of the SkyWater 130nm OpenLane physical design flow via [run_openlane.sh](file:///home/bazzite/Openlane_processor/scripts/run_openlane.sh). Parses log artifacts to report gate counts, DFF utilization, clock frequency $F_{max}$, setup/hold timing slack, and DRC/LVS cleanliness. |
+| `riscv-simulate-iverilog` | [.skills/riscv-simulate-iverilog/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/.skills/riscv-simulate-iverilog) | Compiles and simulates individual RISC-V assembly test programs using Icarus Verilog (`iverilog`) and `vvp`. Analyzes waveform output (`tb_rv64i_cpu.vcd`) to debug instruction timing, forwarding paths, and memory alignment. |
+| `riscv-isa-compliance` | [.skills/riscv-isa-compliance/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/.skills/riscv-isa-compliance) | Orchestrates the complete automated ISA compliance test suite via [test_driver.py](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/scripts/test_driver.py). Validates integer arithmetic, branch decisions, load/store hazards, and register file write-through behavior against architectural reference states. |
+| `openlane-asic-flow` | [.skills/openlane-asic-flow/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/.skills/openlane-asic-flow) | Automates execution of the SkyWater 130nm OpenLane physical design flow via [run_openlane.sh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/scripts/run_openlane.sh). Parses log artifacts to report gate counts, DFF utilization, clock frequency $F_{max}$, setup/hold timing slack, and DRC/LVS cleanliness. |
 
 ---
 

@@ -46,7 +46,7 @@ def run_test_suite():
 
     # 1. Ensure test hex files exist
     os.makedirs("verif/waves", exist_ok=True)
-    if not os.path.exists("verif/tests/test_alu_ops.hex"):
+    if not os.path.exists("verif/tests/test_alu_ops.hex") or not os.path.exists("verif/tests/test_xgfx_hdmi.hex"):
         print("--> Generating machine-code test hex suites...")
         subprocess.run([sys.executable, "verif/scripts/generate_tests.py"], check=True)
 
@@ -56,7 +56,7 @@ def run_test_suite():
 
     # 3. Compile RTL + Testbench
     print("--> Compiling Verilog RTL and testbench with Icarus Verilog...")
-    rtl_files = glob.glob("rtl/core/*.v") + ["rtl/asic_top.v", "verif/tb_rv64i_cpu.v"]
+    rtl_files = glob.glob("rtl/core/*.v") + glob.glob("rtl/ip_block/*.v") + ["rtl/asic_top.v", "verif/tb_rv64i_cpu.v"]
     compile_cmd = iverilog_cmd + ["-g2012", "-I", "rtl/include", "-o", "verif/sim_tb", "-s", "tb_rv64i_cpu"] + rtl_files
     
     res = subprocess.run(compile_cmd, capture_output=True, text=True)

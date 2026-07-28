@@ -84,6 +84,7 @@ module rv64i_axi4lite_bridge #(
     // Transaction tracking
     reg is_dmem_read;
     reg [ADDR_WIDTH-1:0] last_imem_addr;
+    reg last_served_imem;
 
     // Stall logic: Freeze CPU when a request is pending and data is not yet valid
     assign dmem_stall = (dmem_re || dmem_we) && !dmem_valid;
@@ -110,6 +111,7 @@ module rv64i_axi4lite_bridge #(
             dmem_valid     <= 1'b0;
             is_dmem_read   <= 1'b0;
             last_imem_addr <= {ADDR_WIDTH{1'b1}}; // Reset to invalid address to force initial fetch
+            last_served_imem <= 1'b0;
         end else begin
             case (state_reg)
                 STATE_IDLE: begin
@@ -121,37 +123,51 @@ module rv64i_axi4lite_bridge #(
                         imem_valid <= 1'b0;
                     end
 
+                    // QoS Round-Robin Arbitration: prevent DMEM from starving IMEM when both request bus
+                    if (imem_req && (imem_addr != last_imem_addr || !imem_valid) && !last_served_imem && (dmem_we || dmem_re)) begin
+                        state_reg        <= STATE_READ_AR;
+                        is_dmem_read     <= 1'b0;
+                        m_axi_araddr     <= imem_addr;
+                        m_axi_arprot     <= 3'b100; // Normal, secure, instruction access
+                        m_axi_arvalid    <= 1'b1;
+                        m_axi_rready     <= 1'b1;
+                        imem_valid       <= 1'b0;
+                        last_served_imem <= 1'b1;
+                    end
                     // Priority 1: Data Memory Write
-                    if (dmem_we) begin
-                        state_reg     <= STATE_WRITE_AW_W;
-                        m_axi_awaddr  <= dmem_addr;
-                        m_axi_awprot  <= 3'b000; // Normal, secure, data access
-                        m_axi_awvalid <= 1'b1;
-                        m_axi_wdata   <= dmem_wdata;
-                        m_axi_wstrb   <= dmem_be;
-                        m_axi_wvalid  <= 1'b1;
-                        m_axi_bready  <= 1'b1;
-                        dmem_valid    <= 1'b0;
+                    else if (dmem_we) begin
+                        state_reg        <= STATE_WRITE_AW_W;
+                        m_axi_awaddr     <= dmem_addr;
+                        m_axi_awprot     <= 3'b000; // Normal, secure, data access
+                        m_axi_awvalid    <= 1'b1;
+                        m_axi_wdata      <= dmem_wdata;
+                        m_axi_wstrb      <= dmem_be;
+                        m_axi_wvalid     <= 1'b1;
+                        m_axi_bready     <= 1'b1;
+                        dmem_valid       <= 1'b0;
+                        last_served_imem <= 1'b0;
                     end
                     // Priority 2: Data Memory Read
                     else if (dmem_re) begin
-                        state_reg     <= STATE_READ_AR;
-                        is_dmem_read  <= 1'b1;
-                        m_axi_araddr  <= dmem_addr;
-                        m_axi_arprot  <= 3'b000; // Normal, secure, data access
-                        m_axi_arvalid <= 1'b1;
-                        m_axi_rready  <= 1'b1;
-                        dmem_valid    <= 1'b0;
+                        state_reg        <= STATE_READ_AR;
+                        is_dmem_read     <= 1'b1;
+                        m_axi_araddr     <= dmem_addr;
+                        m_axi_arprot     <= 3'b000; // Normal, secure, data access
+                        m_axi_arvalid    <= 1'b1;
+                        m_axi_rready     <= 1'b1;
+                        dmem_valid       <= 1'b0;
+                        last_served_imem <= 1'b0;
                     end
                     // Priority 3: Instruction Memory Read
                     else if (imem_req && (imem_addr != last_imem_addr || !imem_valid)) begin
-                        state_reg     <= STATE_READ_AR;
-                        is_dmem_read  <= 1'b0;
-                        m_axi_araddr  <= imem_addr;
-                        m_axi_arprot  <= 3'b100; // Normal, secure, instruction access
-                        m_axi_arvalid <= 1'b1;
-                        m_axi_rready  <= 1'b1;
-                        imem_valid    <= 1'b0;
+                        state_reg        <= STATE_READ_AR;
+                        is_dmem_read     <= 1'b0;
+                        m_axi_araddr     <= imem_addr;
+                        m_axi_arprot     <= 3'b100; // Normal, secure, instruction access
+                        m_axi_arvalid    <= 1'b1;
+                        m_axi_rready     <= 1'b1;
+                        imem_valid       <= 1'b0;
+                        last_served_imem <= 1'b1;
                     end
                 end
 

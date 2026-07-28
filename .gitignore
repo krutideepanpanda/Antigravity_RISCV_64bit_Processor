@@ -37,3 +37,13 @@ openlane/runs/
 *.swp
 *.swo
 *~
+
+# FPGA & Ultra96 Archives / Builds
+ultra 96 v1/
+fpga/build/
+*.xpr
+*.bit
+*.hwh
+*.xsa
+*.pdi
+*.ltx

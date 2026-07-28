@@ -29,6 +29,12 @@
 `define M_REM       3'b110
 `define M_REMU      3'b111
 
+// Graphics SIMD (Xgfx) Funct7 and Funct3 Opcodes
+`define FUNCT7_XGFX 7'b0100000
+`define XGFX_PACK   3'b000
+`define XGFX_BLEND  3'b001
+`define XGFX_CLIP   3'b010
+
 // ALU Control Opcodes (alu_ctrl)
 `define ALU_ADD   4'b0000
 `define ALU_SUB   4'b1000
@@ -40,6 +46,9 @@
 `define ALU_SRA   4'b1101
 `define ALU_OR    4'b0110
 `define ALU_AND   4'b0111
+`define ALU_XGFX_PACK  4'b1001
+`define ALU_XGFX_BLEND 4'b1010
+`define ALU_XGFX_CLIP  4'b1011
 `define ALU_PASS_B 4'b1111 // For LUI / JAL / JALR where imm or pc is passed
 
 // Branch Types (funct3)

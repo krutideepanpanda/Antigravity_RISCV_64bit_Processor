@@ -1,6 +1,6 @@
 # Codebase & Signal Interface Specification
 
-This document provides the complete structural hierarchy, repository layout, signal interface specifications, and module descriptions for the 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Openlane_processor/rtl/include/rv64i_types.vh)).
+This document provides the complete structural hierarchy, repository layout, signal interface specifications, and module descriptions for the 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh)).
 
 ---
 
@@ -9,7 +9,7 @@ This document provides the complete structural hierarchy, repository layout, sig
 The project repository is structured into distinct functional domains: RTL design, verification, physical design, scripts, and documentation:
 
 ```text
-/home/bazzite/Openlane_processor/
+/home/bazzite/Antigravity_RISCV_64bit_Processor/
 ├── Makefile                     # Root build automation (setup, lint, sim-all, openlane, clean)
 ├── README.md                    # Project landing page and executive summary
 ├── bin/                         # Executable tools and locally wrapped EDA scripts
@@ -43,20 +43,20 @@ Our RTL and verification codebase is partitioned into exactly 14 modular Verilog
 
 | # | Module Name | File Path | Type | Primary Architectural Description |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | `asic_top` | [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v) | RTL (Top) | Synthesizable ASIC wrapper isolating internal CPU paths with synchronous registered Wishbone/SRAM I/O busses. |
-| 2 | `rv64i_cpu` | [rv64i_cpu.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_cpu.v) | RTL (Core) | Top-level CPU wrapper interconnecting all 5 pipeline stages, register file, forwarding unit, and hazard controller. |
-| 3 | `rv64i_if` | [rv64i_if.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_if.v) | RTL (Stage 1) | Instruction Fetch stage: contains the 64-bit Program Counter (`PC`), PC+4 adder, and branch/jump target selection muxes. |
-| 4 | `rv64i_id` | [rv64i_id.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_id.v) | RTL (Stage 2) | Instruction Decode stage: decodes opcodes, extracts register operands, and generates immediate values. |
-| 5 | `rv64i_regfile` | [rv64i_regfile.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_regfile.v) | RTL (Sub-stage)| 32x64-bit general-purpose register file with hardwired `x0` zero register and internal write-through forwarding. |
-| 6 | `rv64i_imm_gen` | [rv64i_imm_gen.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_imm_gen.v) | RTL (Sub-stage)| Immediate generator sign-extending immediate bit fields for RV64I I-, S-, B-, U-, and J-type instruction formats. |
-| 7 | `rv64i_control` | [rv64i_control.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_control.v) | RTL (Sub-stage)| Main control and ALU decoder generating pipeline control flags (`reg_write`, `mem_read`, `alu_op`, etc.). |
-| 8 | `rv64i_ex` | [rv64i_ex.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_ex.v) | RTL (Stage 3) | Execute stage: operand forwarding multiplexers, branch condition evaluation, and jump target calculation. |
-| 9 | `rv64i_alu` | [rv64i_alu.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_alu.v) | RTL (Sub-stage)| 64-bit Arithmetic Logic Unit executing addition, subtraction, bitwise logic, shifts, and comparisons. |
-| 10 | `rv64i_mem` | [rv64i_mem.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_mem.v) | RTL (Stage 4) | Memory Access stage: manages data memory read/write requests and byte/halfword/word alignment formatting. |
-| 11 | `rv64i_wb` | [rv64i_wb.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_wb.v) | RTL (Stage 5) | Writeback stage: final selection multiplexer choosing between ALU result, memory read data, and PC+4 for register writeback. |
-| 12 | `rv64i_forwarding`| [rv64i_forwarding.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_forwarding.v)| RTL (Control) | Data hazard forwarding unit dynamically routing results from `EX/MEM` and `MEM/WB` back to EX ALU operands. |
-| 13 | `rv64i_hazard` | [rv64i_hazard.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_hazard.v) | RTL (Control) | Hazard detection unit handling load-use stalls (freezing PC and IF/ID) and control hazard branch/jump flushes. |
-| 14 | `tb_rv64i_cpu` | [tb_rv64i_cpu.v](file:///home/bazzite/Openlane_processor/verif/tb_rv64i_cpu.v) | Verification | Master testbench executing directed ISA compliance hex tests, verifying registers, and generating VCD waveforms. |
+| 1 | `asic_top` | [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v) | RTL (Top) | Synthesizable ASIC wrapper isolating internal CPU paths with synchronous registered Wishbone/SRAM I/O busses. |
+| 2 | `rv64i_cpu` | [rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_cpu.v) | RTL (Core) | Top-level CPU wrapper interconnecting all 5 pipeline stages, register file, forwarding unit, and hazard controller. |
+| 3 | `rv64i_if` | [rv64i_if.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_if.v) | RTL (Stage 1) | Instruction Fetch stage: contains the 64-bit Program Counter (`PC`), PC+4 adder, and branch/jump target selection muxes. |
+| 4 | `rv64i_id` | [rv64i_id.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_id.v) | RTL (Stage 2) | Instruction Decode stage: decodes opcodes, extracts register operands, and generates immediate values. |
+| 5 | `rv64i_regfile` | [rv64i_regfile.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_regfile.v) | RTL (Sub-stage)| 32x64-bit general-purpose register file with hardwired `x0` zero register and internal write-through forwarding. |
+| 6 | `rv64i_imm_gen` | [rv64i_imm_gen.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_imm_gen.v) | RTL (Sub-stage)| Immediate generator sign-extending immediate bit fields for RV64I I-, S-, B-, U-, and J-type instruction formats. |
+| 7 | `rv64i_control` | [rv64i_control.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_control.v) | RTL (Sub-stage)| Main control and ALU decoder generating pipeline control flags (`reg_write`, `mem_read`, `alu_op`, etc.). |
+| 8 | `rv64i_ex` | [rv64i_ex.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_ex.v) | RTL (Stage 3) | Execute stage: operand forwarding multiplexers, branch condition evaluation, and jump target calculation. |
+| 9 | `rv64i_alu` | [rv64i_alu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_alu.v) | RTL (Sub-stage)| 64-bit Arithmetic Logic Unit executing addition, subtraction, bitwise logic, shifts, and comparisons. |
+| 10 | `rv64i_mem` | [rv64i_mem.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_mem.v) | RTL (Stage 4) | Memory Access stage: manages data memory read/write requests and byte/halfword/word alignment formatting. |
+| 11 | `rv64i_wb` | [rv64i_wb.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_wb.v) | RTL (Stage 5) | Writeback stage: final selection multiplexer choosing between ALU result, memory read data, and PC+4 for register writeback. |
+| 12 | `rv64i_forwarding`| [rv64i_forwarding.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_forwarding.v)| RTL (Control) | Data hazard forwarding unit dynamically routing results from `EX/MEM` and `MEM/WB` back to EX ALU operands. |
+| 13 | `rv64i_hazard` | [rv64i_hazard.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_hazard.v) | RTL (Control) | Hazard detection unit handling load-use stalls (freezing PC and IF/ID) and control hazard branch/jump flushes. |
+| 14 | `tb_rv64i_cpu` | [tb_rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/verif/tb_rv64i_cpu.v) | Verification | Master testbench executing directed ISA compliance hex tests, verifying registers, and generating VCD waveforms. |
 
 ---
 
@@ -82,7 +82,7 @@ asic_top.v                       # Synthesizable ASIC wrapper with registered Wi
 
 ## 4. Wishbone / SRAM Registered Interface (`asic_top`)
 
-In a standard cell ASIC layout, direct combinational connections between core logic and top-level I/O pads create unpredictable routing delays and severe hold-time violations during static timing analysis (STA). To eliminate pad frame timing anomalies during OpenLane physical synthesis, [asic_top.v](file:///home/bazzite/Openlane_processor/rtl/asic_top.v) implements a fully registered Wishbone/SRAM-compatible bus boundary.
+In a standard cell ASIC layout, direct combinational connections between core logic and top-level I/O pads create unpredictable routing delays and severe hold-time violations during static timing analysis (STA). To eliminate pad frame timing anomalies during OpenLane physical synthesis, [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v) implements a fully registered Wishbone/SRAM-compatible bus boundary.
 
 ### A. Bus Registration Architecture
 All incoming instructions, memory read data, and handshake signals are latched into input registers on the rising edge of `clk`. Similarly, all outgoing addresses, write data, write masks, and memory request flags are driven from synchronous output registers.
@@ -140,10 +140,10 @@ graph LR
 ### IF/ID Pipeline Register
 * **Inputs**: `if_pc`, `if_pc_plus4`, `imem_rdata`
 * **Outputs**: `id_pc`, `id_pc_plus4`, `id_instr`
-* **Control**: Stalled when `hazard_stall` is asserted from [rv64i_hazard.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_hazard.v); Flushed to NOP (`32'h00000013`) when `hazard_flush` is asserted.
+* **Control**: Stalled when `hazard_stall` is asserted from [rv64i_hazard.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_hazard.v); Flushed to NOP (`32'h00000013`) when `hazard_flush` is asserted.
 
 ### ID/EX Pipeline Register
-* **Inputs**: Decoded control signals from [rv64i_control.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_control.v), `rs1_data`, `rs2_data`, `imm`, `rs1_addr`, `rs2_addr`, `rd_addr`, `id_pc`, `id_pc_plus4`
+* **Inputs**: Decoded control signals from [rv64i_control.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_control.v), `rs1_data`, `rs2_data`, `imm`, `rs1_addr`, `rs2_addr`, `rd_addr`, `id_pc`, `id_pc_plus4`
 * **Outputs**: `ex_reg_write`, `ex_mem_to_reg`, `ex_mem_write`, `ex_mem_read`, `ex_alu_op`, `ex_alu_src`, `ex_branch`, `ex_jump`, operands, and destination register addresses.
 
 ### EX/MEM Pipeline Register
@@ -156,7 +156,7 @@ graph LR
 
 ---
 
-## 6. Immediate Generator Coding ([rv64i_imm_gen.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_imm_gen.v))
+## 6. Immediate Generator Coding ([rv64i_imm_gen.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_imm_gen.v))
 
 The immediate generator extracts and sign-extends bits from the 32-bit instruction word according to standard RV64I formats:
 * **I-Type**: `{{52{instr[31]}}, instr[31:20]}` (Arithmetic immediates, loads, JALR)

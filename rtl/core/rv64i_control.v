@@ -22,6 +22,7 @@ module rv64i_control (
     wire [6:0] opcode  = instr[6:0];
     wire [2:0] funct3  = instr[14:12];
     wire       funct7_5 = instr[30]; // Bit 30 distinguishes ADD/SUB, SRL/SRA
+    wire [6:0] funct7  = instr[31:25];
 
     always @(*) begin
         // Defaults
@@ -40,17 +41,26 @@ module rv64i_control (
             `OPCODE_OP: begin // R-Type 64-bit
                 reg_write = 1'b1;
                 alu_src   = 1'b0;
-                case (funct3)
-                    3'b000: alu_op = funct7_5 ? `ALU_SUB : `ALU_ADD;
-                    3'b001: alu_op = `ALU_SLL;
-                    3'b010: alu_op = `ALU_SLT;
-                    3'b011: alu_op = `ALU_SLTU;
-                    3'b100: alu_op = `ALU_XOR;
-                    3'b101: alu_op = funct7_5 ? `ALU_SRA : `ALU_SRL;
-                    3'b110: alu_op = `ALU_OR;
-                    3'b111: alu_op = `ALU_AND;
-                    default: alu_op = `ALU_ADD;
-                endcase
+                if (funct7 == `FUNCT7_XGFX) begin
+                    case (funct3)
+                        `XGFX_PACK:  alu_op = `ALU_XGFX_PACK;
+                        `XGFX_BLEND: alu_op = `ALU_XGFX_BLEND;
+                        `XGFX_CLIP:  alu_op = `ALU_XGFX_CLIP;
+                        default:     alu_op = `ALU_ADD;
+                    endcase
+                end else begin
+                    case (funct3)
+                        3'b000: alu_op = funct7_5 ? `ALU_SUB : `ALU_ADD;
+                        3'b001: alu_op = `ALU_SLL;
+                        3'b010: alu_op = `ALU_SLT;
+                        3'b011: alu_op = `ALU_SLTU;
+                        3'b100: alu_op = `ALU_XOR;
+                        3'b101: alu_op = funct7_5 ? `ALU_SRA : `ALU_SRL;
+                        3'b110: alu_op = `ALU_OR;
+                        3'b111: alu_op = `ALU_AND;
+                        default: alu_op = `ALU_ADD;
+                    endcase
+                end
             end
             `OPCODE_OP_W: begin // R-Type 32-bit Word
                 reg_write = 1'b1;

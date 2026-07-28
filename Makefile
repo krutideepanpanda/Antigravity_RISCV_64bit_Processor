@@ -12,7 +12,7 @@ RTL_TOP_FILES  := $(wildcard rtl/*.v) $(wildcard rtl/ip_block/*.v)
 TB_FILES       := $(wildcard verif/*.v)
 INC_DIR        := rtl/include
 
-.PHONY: all help setup lint sim-all openlane clean
+.PHONY: all help setup lint sim-all openlane fpga fpga-bitstream clean
 
 all: help
 
@@ -24,6 +24,7 @@ help:
 	@echo "  make lint       : Run syntax checks and linting on Verilog RTL"
 	@echo "  make sim-all    : Compile and execute the full RV64I test suite"
 	@echo "  make openlane   : Execute OpenLane ASIC synthesis and GDSII generation"
+	@echo "  make fpga       : One-click FPGA bitstream generation for Ultra96-V1"
 	@echo "  make clean      : Remove build artifacts and simulation logs"
 	@echo "===================================================================="
 
@@ -55,7 +56,11 @@ openlane:
 		./scripts/run_openlane.sh; \
 	fi
 
+fpga fpga-bitstream:
+	@echo "--> Launching One-Click Ultra96-V1 FPGA Implementation..."
+	@$(MAKE) -C fpga bitstream
+
 clean:
 	@echo "--> Cleaning build and simulation files..."
-	@rm -rf *.vcd *.out sim_build csrc *.log *.jou *.rpt *.stat
+	@rm -rf *.vcd *.out sim_build csrc *.log *.jou *.rpt *.stat fpga/build/
 	@echo "Clean complete."

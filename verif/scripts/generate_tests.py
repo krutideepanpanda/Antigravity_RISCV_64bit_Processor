@@ -74,6 +74,15 @@ def bne(rs1, rs2, imm13):
     imm_11 = (imm >> 11) & 1
     return f"{((imm_12 << 31) | (imm_10_5 << 25) | (rs2 << 20) | (rs1 << 15) | (0b001 << 12) | (imm_4_1 << 8) | (imm_11 << 7) | 0b1100011):08x}"
 
+def xgfx_pack(rd, rs1, rs2):
+    return f"{((0b0100000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b000 << 12) | (rd << 7) | 0b0110011):08x}"
+
+def xgfx_blend(rd, rs1, rs2):
+    return f"{((0b0100000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b001 << 12) | (rd << 7) | 0b0110011):08x}"
+
+def xgfx_clip(rd, rs1, rs2):
+    return f"{((0b0100000 << 25) | (rs2 << 20) | (rs1 << 15) | (0b010 << 12) | (rd << 7) | 0b0110011):08x}"
+
 def pass_test_seq():
     # lui x31, 1 -> x31 = 0x1000
     # addi x30, x0, 1 -> x30 = 1 (pass code)
@@ -168,7 +177,23 @@ def generate_all_tests():
     ] + pass_test_seq() + fail_test_seq(6)
     write_hex_file(f"{out_dir}/test_forwarding_hazards.hex", fwd_instrs)
 
-    print(f"Generated 5 test hex suites in {out_dir}/")
+    # 6. test_xgfx_hdmi.hex
+    # Test Xgfx instructions (PACK.RGBA, CLIP.2D) and HDMI MMIO register access
+    xgfx_instrs = [
+        addi(1, 0, 10),      # x1 = 10
+        addi(2, 0, 20),      # x2 = 20
+        xgfx_pack(3, 1, 2),  # x3 = {20, 10}
+        xgfx_clip(4, 1, 2),  # x4 = clip result
+        lui(31, 524288),     # x31 = 0x80000000
+        addi(31, 31, 256),   # x31 = 0x80000100 (HDMI MMIO base)
+        addi(30, 0, 5),      # x30 = 5 (Enable + Mode 1 Sprite)
+        sd(30, 31, 0),       # write to HDMI control register 0x00
+        addi(29, 0, 16),     # x29 = 16
+        sd(29, 31, 24),      # write to Sprite 0 register 0x18
+    ] + pass_test_seq() + fail_test_seq(7)
+    write_hex_file(f"{out_dir}/test_xgfx_hdmi.hex", xgfx_instrs)
+
+    print(f"Generated 6 test hex suites in {out_dir}/")
 
 if __name__ == "__main__":
     generate_all_tests()

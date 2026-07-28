@@ -1,4 +1,4 @@
-# 64-bit RISC-V (RV64IM) Semiconductor IP Core & OpenLane ASIC Implementation
+# Antigravity RISC-V 64-bit Processor
 
 An open-source, commercial-grade 64-bit RISC-V processor IP core (**RV64IM** 5-stage pipelined architecture) designed for high-performance System-on-Chip (SoC) integration and heterogeneous GPGPU co-processing. The design features an integrated L1 cache hierarchy, an AMD ROCm / HSA hardware acceleration interface, and AMBA AXI4-Lite bus bridging, fully verified for 100% ISA compliance and physically implemented into a synthesizable GDSII layout using OpenLane 2 and the open-source **SkyWater 130nm PDK** (`sky130A`).
 
@@ -6,11 +6,11 @@ An open-source, commercial-grade 64-bit RISC-V processor IP core (**RV64IM** 5-s
 
 ## 1. Executive Summary & Key Features
 
-* **Complete RV64IM ISA Implementation**: Native execution of 64-bit integer arithmetic, logical operations, shifts, conditional branches, jumps, immediate generation, and byte/halfword/word/doubleword memory access ([rv64i_cpu.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_cpu.v)). Incorporates the RV64M integer multiplication and division extension via a 64-cycle sequential radix-2 divider and combinational multiplier in [rv64i_muldiv.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_muldiv.v).
+* **Complete RV64IM ISA Implementation**: Native execution of 64-bit integer arithmetic, logical operations, shifts, conditional branches, jumps, immediate generation, and byte/halfword/word/doubleword memory access ([rv64i_cpu.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_cpu.v)). Incorporates the RV64M integer multiplication and division extension via a 64-cycle sequential radix-2 divider and combinational multiplier in [rv64i_muldiv.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_muldiv.v).
 * **5-Stage Pipelined Microarchitecture**: Cleanly separated Instruction Fetch (`IF`), Instruction Decode (`ID`), Execute (`EX`), Memory Access (`MEM`), and Writeback (`WB`) stages with synchronous D-flip-flop pipeline registers.
-* **1-Cycle L1 Cache Memory Hierarchy**: Configurable 4 KB / 8 KB direct-mapped or 2-way set-associative L1 instruction and data cache hierarchy in [rv64i_l1_cache.v](file:///home/bazzite/Openlane_processor/rtl/core/rv64i_l1_cache.v). Features synchronous 1-cycle read hit forwarding ($\text{cpu\_stall} = 0$ on hit) and a 4-deep circular FIFO write-through buffer (`WRITE_BUFFER_DEPTH = 4`), accelerating effective processor throughput from an uncached $0.206\text{ IPC}$ up to **$0.901\text{ IPC}$** across compute benchmarks.
-* **AMD ROCm / HSA GPGPU Co-Processing Interface**: Dedicated hardware acceleration unit in [rv64i_rocm_accelerator.v](file:///home/bazzite/Openlane_processor/rtl/rocm/rv64i_rocm_accelerator.v) acting as a memory-mapped HSA co-processor queue (`0x8000_0000` to `0x8000_00FF`). Ingests 64-byte aligned Architectural Queue Language (AQL) kernel dispatch packets, triggers SIMD vector execution upon doorbell ringing (`0x8000_0040`), and asserts completion interrupts to the RISC-V host. Supported by a native C runtime library in [software/rocm_runtime/](file:///home/bazzite/Openlane_processor/software/rocm_runtime/).
-* **Semiconductor IP Block Standardization**: Packaged for immediate commercial SoC insertion with an AMBA AXI4-Lite master/slave system bus wrapper in [rv64i_axi4lite_bridge.v](file:///home/bazzite/Openlane_processor/rtl/ip_block/rv64i_axi4lite_bridge.v), an IEEE 1685-2014 compliant IP-XACT XML descriptor in [rv64i_cpu_ip.xml](file:///home/bazzite/Openlane_processor/ip/rv64i_cpu_ip.xml), and a FuseSoC CAPI=2 package definition in [rv64i_core.core](file:///home/bazzite/Openlane_processor/ip/rv64i_core.core).
+* **1-Cycle L1 Cache Memory Hierarchy**: Configurable 4 KB / 8 KB direct-mapped or 2-way set-associative L1 instruction and data cache hierarchy in [rv64i_l1_cache.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/core/rv64i_l1_cache.v). Features synchronous 1-cycle read hit forwarding ($\text{cpu\_stall} = 0$ on hit) and a 4-deep circular FIFO write-through buffer (`WRITE_BUFFER_DEPTH = 4`), accelerating effective processor throughput from an uncached $0.206\text{ IPC}$ up to **$0.901\text{ IPC}$** across compute benchmarks.
+* **AMD ROCm / HSA GPGPU Co-Processing Interface**: Dedicated hardware acceleration unit in [rv64i_rocm_accelerator.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/rocm/rv64i_rocm_accelerator.v) acting as a memory-mapped HSA co-processor queue (`0x8000_0000` to `0x8000_00FF`). Ingests 64-byte aligned Architectural Queue Language (AQL) kernel dispatch packets, triggers SIMD vector execution upon doorbell ringing (`0x8000_0040`), and asserts completion interrupts to the RISC-V host. Supported by a native C runtime library in [software/rocm_runtime/](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/software/rocm_runtime/).
+* **Semiconductor IP Block Standardization**: Packaged for immediate commercial SoC insertion with an AMBA AXI4-Lite master/slave system bus wrapper in [rv64i_axi4lite_bridge.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/ip_block/rv64i_axi4lite_bridge.v), an IEEE 1685-2014 compliant IP-XACT XML descriptor in [rv64i_cpu_ip.xml](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_cpu_ip.xml), and a FuseSoC CAPI=2 package definition in [rv64i_core.core](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/ip/rv64i_core.core).
 * **SkyWater 130nm Signoff Verified**: Physically implemented and routed using OpenLane 2 / LibreLane targeting the `sky130_fd_sc_hd` standard cell library:
   * **Clock Frequency Target**: 100 MHz ($10.0\text{ ns}$ period, positive setup/hold timing margin).
   * **Gate Count**: 18,348 total standard cells (3,262 DFFs / 15,086 combinational logic gates).
@@ -84,7 +84,7 @@ An open-source, commercial-grade 64-bit RISC-V processor IP core (**RV64IM** 5-s
 ## 4. Repository Hierarchy & Deliverables
 
 ```text
-Openlane_processor/
+Antigravity_RISCV_64bit_Processor/
 ├── Makefile                     # Master build automation (setup, lint, sim-all, openlane, clean)
 ├── README.md                    # Executive product landing page and architectural summary
 ├── bin/                         # Local toolchain binaries and wrapper scripts
@@ -179,13 +179,13 @@ make openlane
 
 ## 6. Technical Documentation Suite
 
-For comprehensive architectural analysis, integration instructions, and physical signoff metrics, consult the formal engineering whitepapers in the [`docs/`](file:///home/bazzite/Openlane_processor/docs/) directory:
-1. **[System Specification and Architectural Data Sheet](file:///home/bazzite/Openlane_processor/docs/system_specification_and_architecture.md)**: Master institutional product specification covering RV64IM ISA compliance, pipeline timing, and silicon parameters.
-2. **[SoC IP Integration Guide](file:///home/bazzite/Openlane_processor/docs/ip_integration_guide.md)**: Commercial integration manual detailing AMBA AXI4-Lite pinouts, memory maps, and synthesis configurations.
-3. **[L1 Cache Performance Report](file:///home/bazzite/Openlane_processor/docs/l1_cache_performance_report.md)**: Quantitative evaluation of memory latency reduction, conflict miss analysis, and IPC acceleration.
-4. **[AMD ROCm Co-Processing Guide](file:///home/bazzite/Openlane_processor/docs/rocm_co_processing_guide.md)**: Technical guide explaining the AQL kernel dispatch queue, doorbell registers, and HIP C runtime library.
-5. **[ASIC Evaluation and Signoff Report](file:///home/bazzite/Openlane_processor/docs/asic_evaluation_report.md)**: Complete Yosys/OpenLane synthesis statistics, gate counts, area utilization, and static timing signoff.
-6. **[Codebase Architecture Manual](file:///home/bazzite/Openlane_processor/docs/codebase_architecture.md)**: Structural hierarchy and detailed Verilog module descriptions.
+For comprehensive architectural analysis, integration instructions, and physical signoff metrics, consult the formal engineering whitepapers in the [`docs/`](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/) directory:
+1. **[System Specification and Architectural Data Sheet](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/system_specification_and_architecture.md)**: Master institutional product specification covering RV64IM ISA compliance, pipeline timing, and silicon parameters.
+2. **[SoC IP Integration Guide](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/ip_integration_guide.md)**: Commercial integration manual detailing AMBA AXI4-Lite pinouts, memory maps, and synthesis configurations.
+3. **[L1 Cache Performance Report](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/l1_cache_performance_report.md)**: Quantitative evaluation of memory latency reduction, conflict miss analysis, and IPC acceleration.
+4. **[AMD ROCm Co-Processing Guide](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/rocm_co_processing_guide.md)**: Technical guide explaining the AQL kernel dispatch queue, doorbell registers, and HIP C runtime library.
+5. **[ASIC Evaluation and Signoff Report](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/asic_evaluation_report.md)**: Complete Yosys/OpenLane synthesis statistics, gate counts, area utilization, and static timing signoff.
+6. **[Codebase Architecture Manual](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/codebase_architecture.md)**: Structural hierarchy and detailed Verilog module descriptions.
 
 ---
 
