@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # ASIC Physical Design & Tape-Out Evaluation Report
 
 **Project Name**: 64-bit RISC-V Pipelined Processor ([RV64I](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh))  
@@ -173,3 +175,7 @@ The physical design configuration and RTL implementation have successfully achie
 2. **Synthesis Cleanliness**: Complete Yosys synthesis mapping 18,348 cells (3,262 DFFs / 15,086 logic) with zero latches or combinational loops.
 3. **Toolchain Robustness**: Configured for automated OpenLane 2 execution with local toolchain wrapper integration in [run_openlane.sh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/scripts/run_openlane.sh), eliminating sandbox dependency issues and guaranteeing reproducible GDSII tape-out generation.
 
+
+
+---
+[⬅️ Previous: Synthesis Optimization](synthesis_optimization_report.md) | [🏠 Main Index](README.md) | [Next: 1GHz Optimization Process ➡️](1ghz_optimization_process.md)

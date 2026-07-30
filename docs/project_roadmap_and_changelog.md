@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # Project Roadmap, Status Matrix & Continuous Changelog
 
 This document serves as the master engineering tracking log and architectural roadmap for the 64-bit RISC-V (`RV64I`) 5-stage pipelined ASIC processor project. It provides complete historical traceability across all development phases, documents the live verification and physical design status of every hardware module, and outlines future architectural extensions.
@@ -110,3 +112,7 @@ To ensure continuous delivery and repository synchronization, all engineering ch
 1. **Feature Branch Isolation**: All RTL modifications, verification suites, and physical design configs are developed on dedicated branches (`feature/<topic>`).
 2. **Automated Quality Verification**: Prior to commit staging, invoke `make lint` and `make sim-all` to verify that 0 regressions exist across syntax, linting, or ISA execution signatures.
 3. **Continuous Push & Merge**: Execute `scripts/git_sync.sh` to stage changes, format conventional commit messages, merge into `main`, and push across all remote tracking branches on `https://github.com/krutideepanpanda/Antigravity_RISCV_64bit_Processor`.
+
+
+---
+[⬅️ Previous: 1GHz Optimization Process](1ghz_optimization_process.md) | [🏠 Main Index](README.md)

@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # Physical Synthesis Performance and Comparative Optimization Report
 
 ## 1. Executive Summary
@@ -96,3 +98,7 @@ On the SkyWater 130nm process node, interconnect RC delays (resistance-capacitan
 1. **Enable Flattened Synthesis by Default**: Set `SYNTH_FLATTEN = 1` in the OpenLane configuration (`config.json` or `config.tcl`) for production tapeout runs to capture the 2.91% DFF area savings and routing congestion improvements.
 2. **Implement Iterative Full Optimization**: Ensure that `SYNTH_STRATEGY` is configured to leverage iterative Boolean optimization and DFF cleanup (`opt -full`) prior to technology mapping against `sky130_fd_sc_hd`.
 3. **Explore Advanced Register Retiming**: For aggressive frequency scaling, evaluate adding Yosys register retiming (`-retime`) to automatically rebalance combinational logic depths between the execution and memory access pipeline stages without increasing cycle latency.
+
+
+---
+[⬅️ Previous: L1 Cache Performance](l1_cache_performance_report.md) | [🏠 Main Index](README.md) | [Next: ASIC Evaluation ➡️](asic_evaluation_report.md)

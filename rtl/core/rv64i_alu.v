@@ -19,10 +19,17 @@ module rv64i_alu (
 
     wire [31:0] a32 = a[31:0];
 
-    // Shared 64-bit Arithmetic & Comparator Datapath (eliminates redundant 32-bit and signed/unsigned structures)
-    wire [63:0] add_res  = a + b;
-    wire [63:0] sub_res  = a - b;
-    wire        sltu_res = (a < b);
+    // Consolidated 64-bit Adder for ADD, SUB, SLT, SLTU, XGFX_BLEND
+    wire is_sub = (alu_op == `ALU_SUB) || (alu_op == `ALU_SLT) || (alu_op == `ALU_SLTU) || (alu_op == `ALU_XGFX_CLIP);
+    wire is_blend = (alu_op == `ALU_XGFX_BLEND);
+    
+    wire [63:0] add_a = is_blend ? (a & b) : a;
+    wire [63:0] add_b = is_blend ? (((a ^ b) & 64'hFEFE_FEFE_FEFE_FEFE) >> 1) : (is_sub ? ~b : b);
+    wire        add_c = is_sub;
+    
+    wire [64:0] adder_res = add_a + add_b + add_c;
+    wire [63:0] add_sub_res = adder_res[63:0];
+    wire        sltu_res = ~adder_res[64];
     wire        slt_res  = (a[63] ^ b[63]) ? a[63] : sltu_res;
 
     reg [31:0] res32;
@@ -37,19 +44,19 @@ module rv64i_alu (
         if (word_op) begin
             // 32-bit Word Operations (sign-extend result from bit 31 to bit 63)
             case (alu_op)
-                `ALU_ADD: res32 = add_res[31:0];
-                `ALU_SUB: res32 = sub_res[31:0];
+                `ALU_ADD: res32 = add_sub_res[31:0];
+                `ALU_SUB: res32 = add_sub_res[31:0];
                 `ALU_SLL: res32 = a32 << shamt5;
                 `ALU_SRL: res32 = a32 >> shamt5;
                 `ALU_SRA: res32 = signed_a32 >>> shamt5;
-                default:  res32 = add_res[31:0];
+                default:  res32 = add_sub_res[31:0];
             endcase
             result = {{32{res32[31]}}, res32};
         end else begin
             // 64-bit Operations
             case (alu_op)
-                `ALU_ADD:    result = add_res;
-                `ALU_SUB:    result = sub_res;
+                `ALU_ADD:    result = add_sub_res;
+                `ALU_SUB:    result = add_sub_res;
                 `ALU_SLL:    result = a << shamt6;
                 `ALU_SLT:    result = {63'd0, slt_res};
                 `ALU_SLTU:   result = {63'd0, sltu_res};
@@ -59,10 +66,10 @@ module rv64i_alu (
                 `ALU_OR:     result = a | b;
                 `ALU_AND:    result = a & b;
                 `ALU_XGFX_PACK:  result = {b[31:0], a[31:0]};
-                `ALU_XGFX_BLEND: result = (a & b) + (((a ^ b) & 64'hFEFE_FEFE_FEFE_FEFE) >> 1);
+                `ALU_XGFX_BLEND: result = add_sub_res;
                 `ALU_XGFX_CLIP:  result = ((a[31:0] >= b[31:0]) && (a[31:0] <= b[63:32])) ? 64'd1 : 64'd0;
                 `ALU_PASS_B: result = b; // Pass operand B directly (for LUI/JAL/JALR)
-                default:     result = add_res;
+                default:     result = add_sub_res;
             endcase
         end
     end

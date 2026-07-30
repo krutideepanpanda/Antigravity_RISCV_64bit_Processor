@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # RV64I L1 Cache Microarchitectural Performance and Latency Evaluation
 
 This document presents the quantitative performance evaluation, latency reduction analysis, and architectural impact of the newly implemented L1 Instruction and Data Cache hierarchy (`rv64i_l1_cache`) for the 64-bit RISC-V processor (`asic_top`). All analysis is conducted under standard SkyWater 130nm ASIC signoff assumptions and 100 MHz target operating frequencies.
@@ -64,3 +66,7 @@ Synthesizing the `rv64i_l1_cache` module in Yosys targeting the SkyWater 130nm H
 ## 5. Conclusion and Roadmap Signoff
 
 The integration of the 2-Way Set-Associative L1 cache elevates the RISC-V processor from an academic RTL core to a commercially competitive, high-performance Semiconductor IP block. By mitigating memory access latency and decoupling store operations via write buffering, the processor achieves an average IPC of 0.901 across intensive workload benchmarks.
+
+
+---
+[⬅️ Previous: User Guide](user_guide.md) | [🏠 Main Index](README.md) | [Next: Synthesis Optimization ➡️](synthesis_optimization_report.md)

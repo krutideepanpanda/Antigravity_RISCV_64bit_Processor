@@ -57,37 +57,46 @@ module rv64i_muldiv (
         end
     end
 
-    // Multiplication logic (Combinational)
+    // Multiplication logic (Pipelined for 1GHz optimization)
     wire is_mul_signed_a = (funct3 == `M_MULH) || (funct3 == `M_MULHSU);
     wire is_mul_signed_b = (funct3 == `M_MULH);
 
-    wire signed [64:0] mul_op_a = {is_mul_signed_a & operand_a[63], operand_a};
-    wire signed [64:0] mul_op_b = {is_mul_signed_b & operand_b[63], operand_b};
-
-    wire signed [129:0] mul_full_res = mul_op_a * mul_op_b;
-    wire [31:0]         mulw_res32   = operand_a[31:0] * operand_b[31:0];
+    reg signed [64:0] reg_mul_op_a;
+    reg signed [64:0] reg_mul_op_b;
+    reg               reg_mul_word_op;
+    reg [2:0]         reg_mul_funct3;
+    
+    // Stage 1 to 2 combinational multiply
+    wire signed [129:0] mul_full_res = reg_mul_op_a * reg_mul_op_b;
+    
+    reg signed [129:0] reg_mul_full_res;
+    reg [31:0]         reg_mulw_res32;
+    reg [2:0]          reg_mul_funct3_stage2;
+    reg                reg_mul_word_op_stage2;
 
     reg [63:0] mul_result;
     always @(*) begin
-        if (word_op) begin
-            mul_result = {{32{mulw_res32[31]}}, mulw_res32[31:0]};
+        if (reg_mul_word_op_stage2) begin
+            mul_result = {{32{reg_mulw_res32[31]}}, reg_mulw_res32[31:0]};
         end else begin
-            case (funct3)
-                `M_MUL:    mul_result = mul_full_res[63:0];
-                `M_MULH:   mul_result = mul_full_res[127:64];
-                `M_MULHSU: mul_result = mul_full_res[127:64];
-                `M_MULHU:  mul_result = mul_full_res[127:64];
-                default:   mul_result = mul_full_res[63:0];
+            case (reg_mul_funct3_stage2)
+                `M_MUL:    mul_result = reg_mul_full_res[63:0];
+                `M_MULH:   mul_result = reg_mul_full_res[127:64];
+                `M_MULHSU: mul_result = reg_mul_full_res[127:64];
+                `M_MULHU:  mul_result = reg_mul_full_res[127:64];
+                default:   mul_result = reg_mul_full_res[63:0];
             endcase
         end
     end
 
-    // Division State Machine (Sequential 64-cycle radix-2 shift-and-subtract)
-    localparam STATE_IDLE     = 2'b00;
-    localparam STATE_DIVIDING = 2'b01;
-    localparam STATE_DONE     = 2'b10;
+    // Division State Machine & Multiplier Pipelining
+    localparam STATE_IDLE        = 3'b000;
+    localparam STATE_DIVIDING    = 3'b001;
+    localparam STATE_MULTIPLY_1  = 3'b010;
+    localparam STATE_MULTIPLY_2  = 3'b011;
+    localparam STATE_DONE        = 3'b100;
 
-    reg [1:0]   state;
+    reg [2:0]   state;
     reg [5:0]   count;
     reg [127:0] PA;
     reg [63:0]  reg_b;
@@ -107,17 +116,34 @@ module rv64i_muldiv (
             reg_sign_q <= 1'b0;
             reg_sign_r <= 1'b0;
             reg_is_rem <= 1'b0;
+            reg_mul_op_a <= 65'd0;
+            reg_mul_op_b <= 65'd0;
+            reg_mul_word_op <= 1'b0;
+            reg_mul_funct3 <= 3'd0;
+            reg_mul_full_res <= 130'd0;
+            reg_mulw_res32 <= 32'd0;
+            reg_mul_funct3_stage2 <= 3'd0;
+            reg_mul_word_op_stage2 <= 1'b0;
         end else begin
             case (state)
                 STATE_IDLE: begin
-                    if (valid_in && is_div_instr && !div_by_zero && !div_overflow) begin
-                        state      <= STATE_DIVIDING;
-                        count      <= 6'd63;
-                        PA         <= {64'd0, abs_a};
-                        reg_b      <= abs_b;
-                        reg_sign_q <= sign_a ^ sign_b;
-                        reg_sign_r <= sign_a;
-                        reg_is_rem <= is_rem_instr;
+                    if (valid_in) begin
+                        if (is_div_instr && !div_by_zero && !div_overflow) begin
+                            state      <= STATE_DIVIDING;
+                            count      <= 6'd63;
+                            PA         <= {64'd0, abs_a};
+                            reg_b      <= abs_b;
+                            reg_sign_q <= sign_a ^ sign_b;
+                            reg_sign_r <= sign_a;
+                            reg_is_rem <= is_rem_instr;
+                        end else if (!is_div_instr) begin
+                            // Start Multiplier Pipeline
+                            state <= STATE_MULTIPLY_1;
+                            reg_mul_op_a <= {is_mul_signed_a & operand_a[63], operand_a};
+                            reg_mul_op_b <= {is_mul_signed_b & operand_b[63], operand_b};
+                            reg_mul_word_op <= word_op;
+                            reg_mul_funct3 <= funct3;
+                        end
                     end
                 end
 
@@ -133,6 +159,18 @@ module rv64i_muldiv (
                     end else begin
                         count <= count - 6'd1;
                     end
+                end
+                
+                STATE_MULTIPLY_1: begin
+                    state <= STATE_MULTIPLY_2;
+                    reg_mul_full_res <= mul_full_res;
+                    reg_mulw_res32 <= reg_mul_op_a[31:0] * reg_mul_op_b[31:0];
+                    reg_mul_funct3_stage2 <= reg_mul_funct3;
+                    reg_mul_word_op_stage2 <= reg_mul_word_op;
+                end
+                
+                STATE_MULTIPLY_2: begin
+                    state <= STATE_DONE;
                 end
 
                 STATE_DONE: begin
@@ -156,10 +194,10 @@ module rv64i_muldiv (
                             div_normal_result;
 
     // Word operation sign extension (W instructions sign-extend lower 32 bits to 64 bits)
-    assign result_out = word_op ? {{32{raw_result_out[31]}}, raw_result_out[31:0]} : raw_result_out;
+    assign result_out = (is_div_instr && word_op) ? {{32{raw_result_out[31]}}, raw_result_out[31:0]} : raw_result_out;
 
     // Handshake and Hazard control flags
-    assign busy  = (state == STATE_DIVIDING) || (state == STATE_IDLE && valid_in && is_div_instr && !div_by_zero && !div_overflow);
-    assign ready = (state == STATE_DONE) || (state == STATE_IDLE && (!valid_in || !is_div_instr || div_by_zero || div_overflow));
+    assign busy  = (state != STATE_IDLE && state != STATE_DONE) || (state == STATE_IDLE && valid_in && (!is_div_instr || (!div_by_zero && !div_overflow)));
+    assign ready = (state == STATE_DONE) || (state == STATE_IDLE && valid_in && is_div_instr && (div_by_zero || div_overflow));
 
 endmodule

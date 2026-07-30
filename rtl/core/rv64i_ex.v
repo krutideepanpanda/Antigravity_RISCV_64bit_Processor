@@ -10,6 +10,8 @@ module rv64i_ex (
     input  wire        rst,
     input  wire [63:0] ex_pc,
     input  wire [63:0] ex_pc_plus4,
+    input  wire        ex_predicted_taken, // From ID stage
+    input  wire [63:0] ex_predicted_target, // From ID stage
     input  wire [63:0] ex_rs1_data,
     input  wire [63:0] ex_rs2_data,
     input  wire [63:0] ex_imm,
@@ -32,9 +34,13 @@ module rv64i_ex (
     input  wire [1:0]  fwd_b_sel,
     input  wire [63:0] mem_fwd_data,   // From MEM stage (mem_alu_result)
     input  wire [63:0] wb_fwd_data,    // From WB stage (wb_rd_data)
-    // Outputs to IF stage (branch resolution)
-    output wire        branch_taken,
-    output wire [63:0] branch_target,
+    // Outputs to IF stage (branch resolution and prediction training)
+    output wire        ex_mispredict,
+    output wire [63:0] ex_correct_pc,
+    output wire        ex_branch_valid,
+    output wire        ex_branch_taken,
+    output wire [63:0] ex_branch_target,
+    
     // Outputs to MEM stage (via EX/MEM register)
     output reg  [63:0] mem_alu_result,
     output reg  [63:0] mem_wdata,
@@ -103,12 +109,25 @@ module rv64i_ex (
         endcase
     end
 
-    // Decoupled Target Calculators: pc_target is off the forwarding critical path!
+    // Branch Target Calculators
     wire [63:0] pc_target   = ex_pc + ex_imm;              // For BEQ/BNE/BLT/BGE/JAL
-    wire [63:0] jalr_target = (fwd_rs1 + ex_imm) & ~64'h1; // For JALR (LSB cleared to 0 per RISC-V spec)
+    wire [63:0] jalr_target = (fwd_rs1 + ex_imm) & ~64'h1; // For JALR (LSB cleared to 0)
 
-    assign branch_taken  = (ex_branch && br_cond_met) || ex_jump;
-    assign branch_target = (ex_jump && ex_alu_src) ? jalr_target : pc_target;
+    wire actual_taken  = (ex_branch && br_cond_met) || ex_jump;
+    wire [63:0] actual_target = (ex_jump && ex_alu_src) ? jalr_target : pc_target;
+    
+    wire target_mismatch = ex_predicted_taken && (actual_target != ex_predicted_target);
+    assign ex_mispredict = (actual_taken != ex_predicted_taken) || target_mismatch;
+    
+    // Correct PC calculation:
+    // If we predicted TAKEN but it was NOT taken, correct PC is PC+4.
+    // If we predicted NOT TAKEN but it was TAKEN, correct PC is actual_target.
+    assign ex_correct_pc = actual_taken ? actual_target : ex_pc_plus4;
+
+    // Training signals to IF stage BHT/BTB
+    assign ex_branch_valid  = ex_branch || ex_jump;
+    assign ex_branch_taken  = actual_taken;
+    assign ex_branch_target = actual_target;
 
     // EX/MEM Synchronous Pipeline Register
     always @(posedge clk or posedge rst) begin

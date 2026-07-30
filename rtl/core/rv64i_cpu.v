@@ -25,18 +25,27 @@ module rv64i_cpu (
     wire if_id_flush;
     wire id_ex_flush;
 
+    // EX misprediction signals
+    wire        ex_mispredict;
+    wire [63:0] ex_correct_pc;
+    wire        ex_branch_valid;
+    wire        ex_branch_taken; // Actual outcome
+    wire [63:0] ex_branch_target; // Actual target
+
     // IF stage outputs / IF-ID reg outputs
     wire [63:0] id_pc;
     wire [63:0] id_pc_plus4;
     wire [31:0] id_instr;
+    wire        id_predicted_taken;
+    wire [63:0] id_predicted_target;
 
-    // EX stage branch signals
-    wire        branch_taken;
-    wire [63:0] branch_target;
+    // EX stage branch signals (obsolete branch_taken/target removed)
 
     // ID stage outputs / ID-EX reg outputs
     wire [63:0] ex_pc;
     wire [63:0] ex_pc_plus4;
+    wire        ex_predicted_taken;
+    wire [63:0] ex_predicted_target;
     wire [63:0] ex_rs1_data;
     wire [63:0] ex_rs2_data;
     wire [63:0] ex_imm;
@@ -91,13 +100,19 @@ module rv64i_cpu (
         .rst           (rst),
         .stall         (stall),
         .flush         (if_id_flush),
-        .branch_taken  (branch_taken),
-        .branch_target (branch_target),
+        .ex_mispredict (ex_mispredict),
+        .ex_correct_pc (ex_correct_pc),
+        .ex_branch_valid (ex_branch_valid),
+        .ex_branch_pc  (ex_pc),
+        .ex_branch_taken (ex_branch_taken),
+        .ex_branch_target(ex_branch_target),
         .imem_rdata    (imem_rdata),
         .imem_addr     (imem_addr),
         .id_pc         (id_pc),
         .id_pc_plus4   (id_pc_plus4),
-        .id_instr      (id_instr)
+        .id_instr      (id_instr),
+        .id_predicted_taken (id_predicted_taken),
+        .id_predicted_target(id_predicted_target)
     );
 
     // ------------------------------------------------------------------------
@@ -108,7 +123,7 @@ module rv64i_cpu (
         .id_rs2_addr   (id_instr[24:20]),
         .ex_mem_read   (ex_mem_read),
         .ex_rd_addr    (ex_rd_addr),
-        .branch_taken  (branch_taken),
+        .ex_mispredict (ex_mispredict),
         .stall         (stall),
         .if_id_flush   (if_id_flush),
         .id_ex_flush   (id_ex_flush)
@@ -128,8 +143,12 @@ module rv64i_cpu (
         .wb_reg_write  (wb_reg_write),
         .wb_rd_addr    (wb_rd_addr),
         .wb_rd_data    (wb_rd_data),
+        .id_predicted_taken (id_predicted_taken),
+        .id_predicted_target(id_predicted_target),
         .ex_pc         (ex_pc),
         .ex_pc_plus4   (ex_pc_plus4),
+        .ex_predicted_taken (ex_predicted_taken),
+        .ex_predicted_target(ex_predicted_target),
         .ex_rs1_data   (ex_rs1_data),
         .ex_rs2_data   (ex_rs2_data),
         .ex_imm        (ex_imm),
@@ -171,6 +190,8 @@ module rv64i_cpu (
         .rst            (rst),
         .ex_pc          (ex_pc),
         .ex_pc_plus4    (ex_pc_plus4),
+        .ex_predicted_taken (ex_predicted_taken),
+        .ex_predicted_target(ex_predicted_target),
         .ex_rs1_data    (ex_rs1_data),
         .ex_rs2_data    (ex_rs2_data),
         .ex_imm         (ex_imm),
@@ -192,8 +213,11 @@ module rv64i_cpu (
         .fwd_b_sel      (fwd_b_sel),
         .mem_fwd_data   (mem_alu_result),
         .wb_fwd_data    (wb_rd_data),
-        .branch_taken   (branch_taken),
-        .branch_target  (branch_target),
+        .ex_mispredict  (ex_mispredict),
+        .ex_correct_pc  (ex_correct_pc),
+        .ex_branch_valid(ex_branch_valid),
+        .ex_branch_taken(ex_branch_taken),
+        .ex_branch_target(ex_branch_target),
         .mem_alu_result (mem_alu_result),
         .mem_wdata      (mem_wdata),
         .mem_rd_addr    (mem_rd_addr),

@@ -10,10 +10,10 @@
 `include "rv64i_types.vh"
 
 module rv64i_l1_cache #(
-    parameter int CACHE_SIZE     = 4096, // 4096 bytes (4 KB) or 8192 bytes (8 KB)
-    parameter int ASSOC          = 2,    // 1 for Direct-Mapped, 2 for 2-Way Set-Associative
-    parameter int LINE_SIZE      = 8,    // Line size in bytes (8, 16, or 32)
-    parameter int WRITE_ALLOCATE = 0     // 0 = No-Write-Allocate, 1 = Write-Allocate
+    parameter integer CACHE_SIZE     = 4096, // 4096 bytes (4 KB) or 8192 bytes (8 KB)
+    parameter integer ASSOC          = 2,    // 1 for Direct-Mapped, 2 for 2-Way Set-Associative
+    parameter integer LINE_SIZE      = 8,    // Line size in bytes (8, 16, or 32)
+    parameter integer WRITE_ALLOCATE = 0     // 0 = No-Write-Allocate, 1 = Write-Allocate
 ) (
     input  wire        clk,
     input  wire        rst,
@@ -39,12 +39,12 @@ module rv64i_l1_cache #(
     // ------------------------------------------------------------------------
     // Cache Parameter Calculations
     // ------------------------------------------------------------------------
-    localparam int NUM_SETS       = CACHE_SIZE / (LINE_SIZE * ASSOC);
-    localparam int OFFSET_BITS    = $clog2(LINE_SIZE);
-    localparam int INDEX_BITS     = $clog2(NUM_SETS);
-    localparam int TAG_BITS       = 64 - INDEX_BITS - OFFSET_BITS;
-    localparam int WORDS_PER_LINE = LINE_SIZE / 8;
-    localparam int REFILL_BITS    = (WORDS_PER_LINE > 1) ? $clog2(WORDS_PER_LINE) : 1;
+    localparam integer NUM_SETS       = CACHE_SIZE / (LINE_SIZE * ASSOC);
+    localparam integer OFFSET_BITS    = $clog2(LINE_SIZE);
+    localparam integer INDEX_BITS     = $clog2(NUM_SETS);
+    localparam integer TAG_BITS       = 64 - INDEX_BITS - OFFSET_BITS;
+    localparam integer WORDS_PER_LINE = LINE_SIZE / 8;
+    localparam integer REFILL_BITS    = (WORDS_PER_LINE > 1) ? $clog2(WORDS_PER_LINE) : 1;
 
     // ------------------------------------------------------------------------
     // Write Buffer Configuration

@@ -15,9 +15,13 @@ module rv64i_id (
     input  wire        wb_reg_write,   // From WB stage
     input  wire [4:0]  wb_rd_addr,     // From WB stage
     input  wire [63:0] wb_rd_data,     // From WB stage
+    input  wire        id_predicted_taken, // From IF stage
+    input  wire [63:0] id_predicted_target, // From IF stage
     // Outputs to EX stage (via ID/EX register)
     output reg  [63:0] ex_pc,
     output reg  [63:0] ex_pc_plus4,
+    output reg         ex_predicted_taken, // To EX stage
+    output reg  [63:0] ex_predicted_target, // To EX stage
     output reg  [63:0] ex_rs1_data,
     output reg  [63:0] ex_rs2_data,
     output reg  [63:0] ex_imm,
@@ -96,6 +100,8 @@ module rv64i_id (
         if (rst) begin
             ex_pc         <= 64'h0;
             ex_pc_plus4   <= 64'h0;
+            ex_predicted_taken <= 1'b0;
+            ex_predicted_target <= 64'h0;
             ex_rs1_data   <= 64'h0;
             ex_rs2_data   <= 64'h0;
             ex_imm        <= 64'h0;
@@ -116,6 +122,8 @@ module rv64i_id (
         end else if (flush) begin
             ex_pc         <= 64'h0;
             ex_pc_plus4   <= 64'h0;
+            ex_predicted_taken <= 1'b0;
+            ex_predicted_target <= 64'h0;
             ex_rs1_data   <= 64'h0;
             ex_rs2_data   <= 64'h0;
             ex_imm        <= 64'h0;
@@ -136,6 +144,8 @@ module rv64i_id (
         end else if (!stall) begin
             ex_pc         <= id_pc;
             ex_pc_plus4   <= id_pc_plus4;
+            ex_predicted_taken <= id_predicted_taken;
+            ex_predicted_target <= id_predicted_target;
             ex_rs1_data   <= rs1_data;
             ex_rs2_data   <= rs2_data;
             ex_imm        <= imm;

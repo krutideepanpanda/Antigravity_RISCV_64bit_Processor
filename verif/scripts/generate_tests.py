@@ -193,7 +193,36 @@ def generate_all_tests():
     ] + pass_test_seq() + fail_test_seq(7)
     write_hex_file(f"{out_dir}/test_xgfx_hdmi.hex", xgfx_instrs)
 
-    print(f"Generated 6 test hex suites in {out_dir}/")
+    # 7. test_benchmark.hex
+    # A real-life workload: computing Fibonacci(10) iteratively.
+    # We will use variables and a loop to test the processor's performance.
+    benchmark_instrs = [
+        # Initialize x1 = 0, x2 = 1, x3 = 10 (loop counter)
+        addi(1, 0, 0),       # x1 = 0
+        addi(2, 0, 1),       # x2 = 1
+        addi(3, 0, 10),      # x3 = 10
+        # Loop start (offset +12 bytes from here, but wait, the loop target is the next instruction)
+        # We need an accumulator
+        # Loop:
+        # add x4, x1, x2     # x4 = x1 + x2
+        # addi x1, x2, 0     # x1 = x2
+        # addi x2, x4, 0     # x2 = x4
+        # addi x3, x3, -1    # x3 = x3 - 1
+        # bne x3, x0, -16    # if x3 != 0, loop back (-16 bytes)
+        add(4, 1, 2),        # x4 = x1 + x2
+        add(1, 2, 0),        # x1 = x2
+        add(2, 4, 0),        # x2 = x4
+        addi(3, 3, -1),      # x3 = x3 - 1
+        # To branch back 16 bytes, imm13 is -16. -16 in 13-bit two's complement is 0x1FF0.
+        bne(3, 0, -16),      # if x3 != 0, branch to 'add x4, x1, x2'
+        
+        # After loop, check if x1 == 55 (Fib(10) = 55)
+        addi(5, 0, 55),
+        bne(1, 5, 16),       # if x1 != 55, fail
+    ] + pass_test_seq() + fail_test_seq(8)
+    write_hex_file(f"{out_dir}/test_benchmark.hex", benchmark_instrs)
+
+    print(f"Generated 7 test hex suites in {out_dir}/")
 
 if __name__ == "__main__":
     generate_all_tests()

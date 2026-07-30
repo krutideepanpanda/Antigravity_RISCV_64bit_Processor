@@ -21,10 +21,10 @@
     "dir::../rtl/include"
   ],
   "CLOCK_PORT": "clk",
-  "CLOCK_PERIOD": 10.0,
+  "CLOCK_PERIOD": 1.0,
   "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
-  "DIE_AREA": [0, 0, 800, 800],
-  "CORE_AREA": [20, 20, 780, 780],
+  "DIE_AREA": [0, 0, 600, 600],
+  "CORE_AREA": [15, 15, 585, 585],
   "RUN_KLAYOUT": false,
   "RUN_KLAYOUT_DRC": false,
   "RUN_KLAYOUT_XOR": false

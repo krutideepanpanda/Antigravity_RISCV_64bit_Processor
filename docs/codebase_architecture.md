@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # Codebase & Signal Interface Specification
 
 This document provides the complete structural hierarchy, repository layout, signal interface specifications, and module descriptions for the 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh)).
@@ -164,3 +166,7 @@ The immediate generator extracts and sign-extends bits from the 32-bit instructi
 * **B-Type**: `{{51{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8], 1'b0}` (Conditional branches)
 * **U-Type**: `{{32{instr[31]}}, instr[31:12], 12'b0}` (LUI, AUIPC upper immediates)
 * **J-Type**: `{{43{instr[31]}}, instr[31], instr[19:12], instr[20], instr[30:21], 1'b0}` (Unconditional jumps, JAL)
+
+
+---
+[⬅️ Previous: System Specification](system_specification_and_architecture.md) | [🏠 Main Index](README.md) | [Next: Design Philosophy ➡️](design_philosophy.md)

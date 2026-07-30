@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # RV64I Core IP Integration Guide
 
 ## 1. Architectural Overview
@@ -119,3 +121,7 @@ For commercial EDA environments (such as Vivado IP Integrator, Synopsys CoreBuil
 
 ### 5.3 OpenLane ASIC Synthesis Workflow
 When targeting ASIC tape-out via OpenLane, point the flow configuration to [asic_top.v](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/asic_top.v) as the top-level module. Ensure that the include directory `rtl/include` is explicitly added to `VERILOG_INCLUDE_DIRS` in `config.json` so that [rv64i_types.vh](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh) is resolved during Verific/Yosys elaboration.
+
+
+---
+[⬅️ Previous: Design Philosophy](design_philosophy.md) | [🏠 Main Index](README.md) | [Next: ROCm Co-Processing ➡️](rocm_co_processing_guide.md)

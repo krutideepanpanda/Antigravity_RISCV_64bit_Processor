@@ -22,11 +22,11 @@ if command -v openlane &> /dev/null && [ "$1" != "--yosys" ] && [ "$1" != "--yos
     echo "--> Running OpenLane flow on openlane/config.json..."
     openlane openlane/config.json || {
         echo "--> OpenLane encountered an issue, executing standalone Yosys synthesis..."
-        yosys -p "read_verilog -I rtl/include rtl/core/*.v rtl/asic_top.v; synth -top asic_top; stat"
+        yosys -p "read_verilog -sv -I rtl/include rtl/*/*.v rtl/asic_top.v; synth -top asic_top; stat"
     }
 else
     echo "--> Executing standalone Yosys synthesis..."
-    yosys -p "read_verilog -I rtl/include rtl/core/*.v rtl/asic_top.v; synth -top asic_top; stat"
+    yosys -p "read_verilog -sv -I rtl/include rtl/*/*.v rtl/asic_top.v; synth -top asic_top; stat"
 fi
 
 echo "=========================================================="

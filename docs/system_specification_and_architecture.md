@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # RV64IM System Specification and Architectural Data Sheet
 
 This document serves as the formal architectural specification, institutional data sheet, and technical reference manual for the 64-bit RISC-V processor IP core (`asic_top` / `rv64i_cpu`). The design is physically verified and signoff-ready for SkyWater 130nm ASIC fabrication, featuring integrated L1 caching, AMBA AXI4-Lite bus bridging, and an AMD ROCm / HSA GPGPU compute co-processing interface.
@@ -179,3 +181,7 @@ The processor IP has achieved 100% signoff closure against rigorous verification
 3. **ISA Regression Suite**: 100% pass rate across directed machine-code regression tests (`test_alu_ops`, `test_branches`, `test_forwarding_hazards`, `test_memory`, `test_word_ops`, and `tb_rocm_dispatch`).
 4. **Physical Design Signoff**: Zero DRC violations in Magic and zero LVS mismatches in Netgen under SkyWater 130nm layout signoff rules.
 
+
+
+---
+[⬅️ Previous: Main Index](README.md) | [🏠 Main Index](README.md) | [Next: Codebase Architecture ➡️](codebase_architecture.md)

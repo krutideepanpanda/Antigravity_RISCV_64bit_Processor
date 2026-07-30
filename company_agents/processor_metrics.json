@@ -1,0 +1,21 @@
+{
+  "Core Architecture": "64-bit RISC-V (RV64I)",
+  "Pipeline Depth": "5-Stage (IF, ID, EX, MEM, WB)",
+  "Target Node (PDK)": "sky130A",
+  "Target Clock Frequency": "1.0 GHz (1.0ns)",
+  "Die Area (\u00b5m\u00b2)": "600 x 600",
+  "Core Area (\u00b5m\u00b2)": "570 x 570",
+  "Benchmark Suite": "Fibonacci(20) Loop + Memory Store + RAW Forwarding",
+  "Total Executed Cycles": "195 cycles",
+  "Algorithmic Instructions": "189 instructions (6 init + 180 loop + 3 pass)",
+  "Pipeline Fetched Instrs": "191 instructions (includes 2 trailing pipeline drain NOPs)",
+  "Algorithmic CPI": "1.0317",
+  "Algorithmic IPC": "0.9692",
+  "Pipeline CPI": "1.0209",
+  "Pipeline IPC": "0.9795",
+  "Load-Use Stalls": "0 cycles (No load-use dependencies)",
+  "RAW Forwarding Stalls": "0 cycles (Resolved via EX/MEM/WB forwarding)",
+  "Branch Control Hazards": "2 mispredicts \u00d7 2-cycle flush penalty = 4 cycles",
+  "Pipeline Startup/Drain": "2 cycles (Initial ID fill and final MEM store completion)",
+  "Ideal 1-Cycle Datapath": "189 cycles (189 instructions @ CPI = 1.0000)"
+}

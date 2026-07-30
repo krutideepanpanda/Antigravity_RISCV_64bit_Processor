@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # OpenLane RISC-V Processor Documentation Directory & Navigation Roadmap
 
 Welcome to the technical documentation repository for the 64-bit RISC-V (RV64I) 5-stage pipelined processor ASIC IP block. This navigation directory serves as the institutional sitemap and engineering roadmap for systems architects, VLSI layout engineers, firmware developers, and verification leads exploring this repository.
@@ -14,8 +16,9 @@ These primary engineering reports document the quantitative hardware parameters,
 | :--- | :--- | :--- |
 | **[System Specification & Architecture Data Sheet](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/system_specification_and_architecture.md)** | Systems Architects & Chip Leads | Master institutional specification defining the RV64I ISA implementation, 5-stage microarchitecture, AMBA AXI4-Lite memory bridging, IP-XACT/FuseSoC packaging, and 100 MHz SkyWater 130nm signoff parameters. |
 | **[ASIC Evaluation & Signoff Report](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/asic_evaluation_report.md)** | VLSI Physical Design Engineers | Complete physical layout evaluation documenting gate counts (18,348 standard cells, 3,262 DFFs), core area utilization (48.5% density on 0.5776 mm² core), clock tree synthesis (312 CTS buffers, 65ps skew), STA timing closure (+1.25ns setup WNS), routing wirelength (18.45 cm), via counts (42,510 vias), and DRC/LVS physical signoff. |
-| **[Synthesis Optimization Report](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/synthesis_optimization_report.md)** | Synthesis & RTL Engineers | Comparative Yosys synthesis analysis contrasting standard hierarchical synthesis against flattened cross-boundary optimization (`-flatten; opt -full`), documenting our 2.91% reduction in sequential flip-flop overhead and wire bit reduction. |
-| **[L1 Cache Performance Report](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/l1_cache_performance_report.md)** | Microarchitecture Engineers | Quantitative benchmark report demonstrating how our 8 KB 2-Way Set-Associative L1 cache with synchronous read hit forwarding increases Instructions Per Cycle (IPC) from 0.206 to 0.901 (a 4.37x architectural speedup). |
+| **[Synthesis Optimization Report](synthesis_optimization_report.md)** | Synthesis & RTL Engineers | Comparative Yosys synthesis analysis contrasting standard hierarchical synthesis against flattened cross-boundary optimization (`-flatten; opt -full`), documenting our 2.91% reduction in sequential flip-flop overhead and wire bit reduction. |
+| **[L1 Cache Performance Report](l1_cache_performance_report.md)** | Microarchitecture Engineers | Quantitative benchmark report demonstrating how our 8 KB 2-Way Set-Associative L1 cache with synchronous read hit forwarding increases Instructions Per Cycle (IPC) from 0.206 to 0.901 (a 4.37x architectural speedup). |
+| **[1GHz Optimization Process](1ghz_optimization_process.md)** | VLSI Physical Design Engineers | Detailed documentation of the agentic openlane process, RTL superpipelining, topological retiming, and environment fixes applied to reach a 1.0ns clock period. |
 
 ---
 
@@ -56,4 +59,7 @@ These operational documents guide developers through toolchain execution, verifi
 
 * **For VLSI Layout Engineers**: Start with [asic_evaluation_report.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/asic_evaluation_report.md), then review [synthesis_optimization_report.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/synthesis_optimization_report.md) and [user_guide.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/user_guide.md) (Section 4: OpenLane Execution).
 * **For SoC Integrators**: Start with [ip_integration_guide.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/ip_integration_guide.md), then review [system_specification_and_architecture.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/system_specification_and_architecture.md) and [rocm_co_processing_guide.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/rocm_co_processing_guide.md).
-* **For RTL & Verification Engineers**: Start with [codebase_architecture.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/codebase_architecture.md), then review [design_philosophy.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/design_philosophy.md) and [l1_cache_performance_report.md](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/docs/l1_cache_performance_report.md).
+* **For RTL & Verification Engineers**: Start with [codebase_architecture.md](codebase_architecture.md), then review [design_philosophy.md](design_philosophy.md) and [l1_cache_performance_report.md](l1_cache_performance_report.md).
+
+---
+[🏠 Main Index](README.md) | [Next: System Specification & Architecture ➡️](system_specification_and_architecture.md)

@@ -1,3 +1,5 @@
+[<- Back to Technical Reference](TECHNICAL_REFERENCE.md)
+
 # RISC-V 64-bit (RV64I) Design Philosophy & Methodology
 
 This document outlines the architectural trade-offs, design methodology, and synthesis principles guiding the implementation of our 64-bit RISC-V processor ([RV64I](file:///home/bazzite/Antigravity_RISCV_64bit_Processor/rtl/include/rv64i_types.vh)) and its physical implementation in the open-source **SkyWater 130nm PDK** (`sky130A`).
@@ -120,3 +122,7 @@ To prevent I/O timing anomalies and hold-time violations during OpenLane routing
 1. **Design Rule Checking (DRC)**: Magic verifies that all metal width, spacing, enclosure, and density rules comply 100% with SkyWater foundry specifications (0 DRC violations).
 2. **Layout Versus Schematic (LVS)**: Netgen extracts the physical SPICE netlist from the layout and compares it against the synthesized Verilog netlist, verifying exact structural equivalence (0 LVS violations).
 3. **Static Timing Analysis (STA)**: OpenROAD STA checks setup and hold timing across all PVT corners, achieving clean timing closure at our **100 MHz clock frequency target** ($10.0\text{ ns}$ period) with $+1.25\text{ ns}$ setup slack.
+
+
+---
+[⬅️ Previous: Codebase Architecture](codebase_architecture.md) | [🏠 Main Index](README.md) | [Next: IP Integration Guide ➡️](ip_integration_guide.md)
